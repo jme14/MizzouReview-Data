@@ -34,37 +34,40 @@ const db: Firestore = getFirestore(app);
 writeAndRead();
 
 async function writeAndRead() {
-  const professorData: Professor = {
-    professorId: "prof-12345",
-    basicInfo: {
-      fname: "John",
-      mname: "A.",
-      lname: "Doe",
-      title: "Dr.",
-      department: "Computer Science",
-      education: "Ph.D. in Artificial Intelligence",
-      tenure: 10,
-    },
-    objectiveMetrics: {
-      gpa: 3.9,
-      confidence: 95,
-    },
-    subjectiveMetrics: {
-      quality: 4.7,
-      difficulty: 3.2,
-      gradingIntensity: 4.0,
-      attendance: 2.5,
-      textbook: 3.8,
-      polarizing: 4.5,
-    },
-    aIPromptAnswers: {
-      letterToProfessor:
-        "Dear Professor Doe, your teaching has profoundly impacted my learning journey...",
-      letterToStudent:
-        "Dear student, always strive for excellence and embrace challenges...",
-      funFacts: "Dr. Doe once built an AI that could generate dad jokes.",
-    },
-  };
+  const basicInfo = new BasicInfo("John", "Doe", "Computer Science", {
+    mname: "A",
+    title: "Dr.",
+    education: "PhD",
+    tenure: 5,
+  });
+
+  const objectiveMetrics = new ObjectiveMetrics(3.8, 95);
+
+  const subjectiveMetrics = new SubjectiveMetrics({
+    quality: 8,
+    difficulty: 7,
+    gradingIntensity: 6,
+    attendance: 9,
+    textbook: 7,
+    polarizing: 5,
+  });
+
+  const aIPromptAnswers = new AIPromptAnswers({
+    letterToProfessor:
+      "Dear Professor, I have a few questions about the upcoming assignment.",
+    letterToStudent:
+      "Dear Student, I received your message and will get back to you shortly.",
+    funFacts: "I once taught a class while riding a unicycle!",
+  });
+
+  // Create the fully populated Professor object
+  const professorData = new Professor("prof123", {
+    basicInfo: basicInfo,
+    objectiveMetrics: objectiveMetrics,
+    subjectiveMetrics: subjectiveMetrics,
+    aIPromptAnswers: aIPromptAnswers,
+  });
+  
   await writeProfessor(professorData);
   await getProfessorDocumentFromID(professorData.professorId);
 }
