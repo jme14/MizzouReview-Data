@@ -35,6 +35,16 @@ export async function getProfessorDocumentFromID(professorId: string) {
   }
 }
 
+// note: the name needs to be exact ;-;
+export async function getProfessorsFromDepartment(department: string): Promise<Professor[]>{
+  const queryResult = await db.collection("professors").where("basicInfo.department", "==", department).get()
+  const professors: Professor[] = []
+  queryResult.forEach((doc) => {
+    professors.push(Professor.initFromObject(doc.data()))
+  })
+  return professors
+}
+
 // enable overwrite if you expect that the professor already exists in the database.
 export async function writeProfessor(professor: Professor) {
   const docRef = db.collection("professors").doc(professor.professorId);
