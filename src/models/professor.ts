@@ -1,89 +1,128 @@
-// basic_info type
-interface IBasicInfo {
+export class BasicInfo {
   fname: string;
-  mname?: string;
   lname: string;
-  title?: string;
   department: string;
+  mname?: string;
+  title?: string;
   education?: string;
   tenure?: number;
+
+  constructor(
+    fname: string,
+    lname: string,
+    department: string,
+    options: {
+      mname?: string;
+      title?: string;
+      education?: string;
+      tenure?: number;
+    } = {}
+  ) {
+    this.fname = fname;
+    this.lname = lname;
+    this.department = department;
+    this.mname = options.mname;
+    this.title = options.title;
+    this.education = options.education;
+    this.tenure = options.tenure;
+  }
 }
 
-export class BasicInfo implements BasicInfo{
-  
-}
-
-// objective_metrics type
-interface IObjectiveMetrics {
-  gpa: number;
-  confidence: number;
-}
-
-
-export class ObjectiveMetrics implements IObjectiveMetrics{
-  private _gpa!: number;
-  private _confidence!: number;
-
-  constructor(gpa: number, confidence: number){
+export class ObjectiveMetrics {
+  constructor(public gpa: number, public confidence: number) {
+    if (gpa < 0 || gpa > 4.0) {
+      throw new Error("Invalid gpa provided");
+    }
+    if (confidence > 100 || confidence < 0) {
+      throw new Error("Invalid confidence provided");
+    }
     this.gpa = gpa;
     this.confidence = confidence;
   }
-
-  get gpa(){
-    return this._gpa
-  }
-  set gpa(gpa: number){
-    if (gpa < 0 || gpa > 4.0){
-      throw new Error("Invalid gpa provided");
-    }
-    this._gpa = gpa
-  }
-
-  get confidence(){
-    return this._confidence
-  }
-  set confidence(confidence: number){
-    if (confidence > 100 || confidence < 0){
-      throw new Error("Invalid confidence provided")
-    }
-    this._confidence = confidence
-  }
 }
 
-// subjective_metrics type
-interface ISubjectiveMetrics {
+export class SubjectiveMetrics {
   quality?: number;
   difficulty?: number;
   gradingIntensity?: number;
   attendance?: number;
   textbook?: number;
   polarizing?: number;
+
+  constructor(
+    options: {
+      quality?: number;
+      difficulty?: number;
+      gradingIntensity?: number;
+      attendance?: number;
+      textbook?: number;
+      polarizing?: number;
+    } = {}
+  ) {
+    const {
+      quality,
+      difficulty,
+      gradingIntensity,
+      attendance,
+      textbook,
+      polarizing,
+    } = options;
+
+    // Validation logic
+    const validateMetric = (value?: number) => {
+      if (value !== undefined && (value < 0 || value > 10)) {
+        throw new Error("Metric values must be between 0 and 10");
+      }
+    };
+
+    validateMetric(quality);
+    validateMetric(difficulty);
+    validateMetric(gradingIntensity);
+    validateMetric(attendance);
+    validateMetric(textbook);
+    validateMetric(polarizing);
+
+    this.quality = quality;
+    this.difficulty = difficulty;
+    this.gradingIntensity = gradingIntensity;
+    this.attendance = attendance;
+    this.textbook = textbook;
+    this.polarizing = polarizing;
+  }
 }
 
-export class SubjectiveMetrics implements ISubjectiveMetrics{
-
-}
-
-// ai_prompt_answers type
-interface IAIPromptAnswers {
+export class AIPromptAnswers {
   letterToProfessor?: string;
   letterToStudent?: string;
   funFacts?: string;
-}
-export class AIPromptAnswers implements IAIPromptAnswers{
 
+  constructor(options: {
+    letterToProfessor?: string;
+    letterToStudent?: string;
+    funFacts?: string;
+  }) {
+    this.letterToProfessor = options.letterToProfessor;
+    this.letterToStudent = options.letterToStudent;
+    this.funFacts = options.funFacts;
+  }
 }
 
-// professor type
-interface IProfessor {
+export class Professor {
   professorId: string;
-  basicInfo?: IBasicInfo;
-  objectiveMetrics?: IObjectiveMetrics;
-  subjectiveMetrics?: ISubjectiveMetrics;
-  aIPromptAnswers?: IAIPromptAnswers;
-}
-
-export class Professor implements IProfessor {
-  constructor(public professorId: string) {}
-
+  basicInfo?: BasicInfo;
+  objectiveMetrics?: ObjectiveMetrics;
+  subjectiveMetrics?: SubjectiveMetrics;
+  aIPromptAnswers?: AIPromptAnswers;
+  constructor(professorId: string, options: {
+    basicInfo?: BasicInfo,
+    objectiveMetrics?: ObjectiveMetrics,
+    subjectiveMetrics?: SubjectiveMetrics,
+    aIPromptAnswers?: AIPromptAnswers
+  }) {
+    this.professorId = professorId;
+    this.basicInfo = options.basicInfo;
+    this.objectiveMetrics = options.objectiveMetrics;
+    this.subjectiveMetrics = options.subjectiveMetrics;
+    this.aIPromptAnswers = options.aIPromptAnswers;
+  }
 }
