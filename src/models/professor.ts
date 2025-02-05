@@ -113,16 +113,76 @@ export class Professor {
   objectiveMetrics?: ObjectiveMetrics;
   subjectiveMetrics?: SubjectiveMetrics;
   aIPromptAnswers?: AIPromptAnswers;
-  constructor(professorId: string, options: {
-    basicInfo?: BasicInfo,
-    objectiveMetrics?: ObjectiveMetrics,
-    subjectiveMetrics?: SubjectiveMetrics,
-    aIPromptAnswers?: AIPromptAnswers
-  }) {
+  constructor(
+    professorId: string,
+    options: {
+      basicInfo?: BasicInfo;
+      objectiveMetrics?: ObjectiveMetrics;
+      subjectiveMetrics?: SubjectiveMetrics;
+      aIPromptAnswers?: AIPromptAnswers;
+    }
+  ) {
     this.professorId = professorId;
     this.basicInfo = options.basicInfo;
     this.objectiveMetrics = options.objectiveMetrics;
     this.subjectiveMetrics = options.subjectiveMetrics;
     this.aIPromptAnswers = options.aIPromptAnswers;
+  }
+  static initFromObject(jsonObject: any) {
+    if (!jsonObject.professorId) {
+      throw new Error("Missing professorId");
+    }
+
+    // Create a BasicInfo instance if the object has the necessary fields
+    const basicInfo = jsonObject.basicInfo
+      ? new BasicInfo(
+          jsonObject.basicInfo.fname,
+          jsonObject.basicInfo.lname,
+          jsonObject.basicInfo.department,
+          {
+            mname: jsonObject.basicInfo.mname,
+            title: jsonObject.basicInfo.title,
+            education: jsonObject.basicInfo.education,
+            tenure: jsonObject.basicInfo.tenure,
+          }
+        )
+      : undefined;
+
+    // Create an ObjectiveMetrics instance if the object has the necessary fields
+    const objectiveMetrics = jsonObject.objectiveMetrics
+      ? new ObjectiveMetrics(
+          jsonObject.objectiveMetrics.gpa,
+          jsonObject.objectiveMetrics.confidence
+        )
+      : undefined;
+
+    // Create a SubjectiveMetrics instance if the object has the necessary fields
+    const subjectiveMetrics = jsonObject.subjectiveMetrics
+      ? new SubjectiveMetrics({
+          quality: jsonObject.subjectiveMetrics.quality,
+          difficulty: jsonObject.subjectiveMetrics.difficulty,
+          gradingIntensity: jsonObject.subjectiveMetrics.gradingIntensity,
+          attendance: jsonObject.subjectiveMetrics.attendance,
+          textbook: jsonObject.subjectiveMetrics.textbook,
+          polarizing: jsonObject.subjectiveMetrics.polarizing,
+        })
+      : undefined;
+
+    // Create an AIPromptAnswers instance if the object has the necessary fields
+    const aIPromptAnswers = jsonObject.aIPromptAnswers
+      ? new AIPromptAnswers({
+          letterToProfessor: jsonObject.aIPromptAnswers.letterToProfessor,
+          letterToStudent: jsonObject.aIPromptAnswers.letterToStudent,
+          funFacts: jsonObject.aIPromptAnswers.funFacts,
+        })
+      : undefined;
+
+    // Return a new Professor instance
+    return new Professor(jsonObject.professorId, {
+      basicInfo,
+      objectiveMetrics,
+      subjectiveMetrics,
+      aIPromptAnswers,
+    });
   }
 }
