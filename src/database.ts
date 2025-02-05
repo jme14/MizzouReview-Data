@@ -15,7 +15,7 @@ import {
   BasicInfo,
   Professor,
   AIPromptAnswers,
-} from "src/models/professor";
+} from  "./models/professor"
 
 const firebaseConfig = {
   apiKey: "AIzaSyCTVLcu1yw9E3d_4HSTLBX0NmiWv0CmDFg",
@@ -67,7 +67,7 @@ async function writeAndRead() {
     subjectiveMetrics: subjectiveMetrics,
     aIPromptAnswers: aIPromptAnswers,
   });
-  
+
   await writeProfessor(professorData);
   await getProfessorDocumentFromID(professorData.professorId);
 }
@@ -87,8 +87,8 @@ async function getProfessorDocumentFromID(professorId: string) {
 async function writeProfessor(professor: Professor) {
   const docRef = db.collection("professors").doc(professor.professorId);
 
-  console.log(professor);
-  await docRef.set(professor);
+  const professorThatCanWrite = JSON.parse(JSON.stringify(professor)) 
+  await docRef.set(professorThatCanWrite);
   console.log("Done!?");
 }
 
