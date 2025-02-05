@@ -185,4 +185,27 @@ export class Professor {
       aIPromptAnswers,
     });
   }
+  // Method to stringify the Professor object
+  toString(): string {
+    const basicInfoStr = this.basicInfo
+      ? JSON.stringify(this.basicInfo)
+      : "No Basic Info";
+    const objectiveMetricsStr = this.objectiveMetrics
+      ? JSON.stringify(this.objectiveMetrics)
+      : "No Objective Metrics";
+    const subjectiveMetricsStr = this.subjectiveMetrics
+      ? JSON.stringify(this.subjectiveMetrics)
+      : "No Subjective Metrics";
+    const aIPromptAnswersStr = this.aIPromptAnswers
+      ? JSON.stringify(this.aIPromptAnswers)
+      : "No AI Prompt Answers";
+
+    return `Professor { 
+      professorId: ${this.professorId}, 
+      basicInfo: ${basicInfoStr}, 
+      objectiveMetrics: ${objectiveMetricsStr}, 
+      subjectiveMetrics: ${subjectiveMetricsStr}, 
+      aIPromptAnswers: ${aIPromptAnswersStr} 
+    }`;
+  }
 }
