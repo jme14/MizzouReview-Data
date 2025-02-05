@@ -5,7 +5,7 @@
   "main": "database.js",
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/database.js",
+    "start": "node dist/main.js",
     "test": "npm run build && npm run start"
   },
   "repository": {
