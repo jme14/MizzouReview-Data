@@ -6,7 +6,8 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/main.js",
-    "test": "npm run build && npm run start"
+    "dev": "npm run build && npm run start",
+    "test": "npx vitest"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "uuid": "^11.0.5"
   },
   "devDependencies": {
-    "@tsconfig/node22": "^22.0.0"
+    "@tsconfig/node22": "^22.0.0",
+    "vitest": "^3.0.5"
   }
 }

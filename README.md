@@ -13,4 +13,4 @@ b) Move this downloaded json file to keys/ directory
 c) Rename to admin.json
 
 ### Step 3: Run! 
-``` npm run test ```
+``` npm run dev```
