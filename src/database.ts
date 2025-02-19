@@ -16,10 +16,16 @@ import {
     AIPromptAnswers,
 } from './models/professor';
 
+type Result<T> = {
+    success: boolean;
+    message: string;
+    data?: T;
+};
+
 /**
- * 
- * @param {Firestore} db 
- * @param {string} professorId 
+ *
+ * @param {Firestore} db
+ * @param {string} professorId
  * @returns  {Promise<Professor | null>}
  */
 export async function getProfessorFromID(
@@ -36,25 +42,23 @@ export async function getProfessorFromID(
     }
 }
 
-
 /**
- * 
- * @param {Firestore} db 
- * @param {string} department 
+ *
+ * @param {Firestore} db
+ * @param {string} department
  * @returns {Promise<Professor[]>}
  */
 export async function getProfessorsFromDepartment(
     db: Firestore,
     department: string,
 ): Promise<Professor[]> {
-
-    // find all professors with the same dept as that passed 
+    // find all professors with the same dept as that passed
     const queryResult = await db
         .collection('professors')
         .where('basicInfo.department', '==', department)
         .get();
 
-    // make a new professor object for all results 
+    // make a new professor object for all results
     const professors: Professor[] = [];
     queryResult.forEach((doc) => {
         professors.push(Professor.initFromObject(doc.data()));
@@ -64,37 +68,88 @@ export async function getProfessorsFromDepartment(
 
 // enable overwrite if you expect that the professor already exists in the database.
 /**
- * 
- * @param {Firestore} db 
- * @param {Professor} professor 
+ * ONLY USE THIS FOR TESTING!
+ * @param {Firestore} db
+ * @param {Professor} professor
  */
-export async function writeProfessor(db: Firestore, professor: Professor) {
+export async function writeProfessor(
+    db: Firestore,
+    professor: Professor,
+): Promise<Result<Professor>> {
     // get a professor object doc referrence from the professor.id
     const docRef = db.collection('professors').doc(professor.professorId);
 
     // convert professor object into JSON object
     const professorThatCanWrite = JSON.parse(JSON.stringify(professor));
-    
-    // write the JSON object into the doc reference 
+
+    // write the JSON object into the doc reference
     await docRef.set(professorThatCanWrite);
-    console.log('Done!?');
+
+    return {
+        success: true,
+        message: 'Success',
+        data: professor,
+    };
 }
 
 /**
  * Use this for new professors
+ * @param db
+ * @param professor
+ * @returns
+ */
+export async function initializeProfessor(
+    db: Firestore,
+    professor: Professor,
+): Promise<Result<Professor>> {
+    // try to find the professor with this id
+    const potentialProfessor = await getProfessorFromID(
+        db,
+        professor.professorId,
+    );
+
+    // if it already exists, return failure
+    if (potentialProfessor != null) {
+        return {
+            success: false,
+            message:
+                'This professor already exists. Use updateProfessor instead',
+        };
+    }
+
+    // otherwise, go ahead and write the professor
+    const writeProfessorResult = await writeProfessor(db, professor);
+
+    return writeProfessorResult;
+}
+
+/**
+ * Use this to update an existing professor record
  * @param db 
  * @param professor 
  * @returns 
  */
-export async function initializeProfessor(db: Firestore, professor: Professor){
-    return false
-}
+export async function updateProfessor(
+    db: Firestore,
+    professor: Professor,
+): Promise<Result<Professor>> {
+    // try to find the professor with this id
+    const potentialProfessor = await getProfessorFromID(
+        db,
+        professor.professorId,
+    );
 
-/**
- * Use this to update an existing professor record 
- * @param db 
- * @param professor 
- */
-export async function updateProfessor(db: Firestore, professor: Professor){
+    // if it doesn't exist, return failure
+    if (potentialProfessor != null) {
+        return {
+            success: false,
+            message:
+                "This professor doesn't exist. Use initializeProfessor instead",
+        };
+    }
 
+    // otherwise, go ahead and write the professor
+    const writeProfessorResult = await writeProfessor(db, professor);
+
+    return writeProfessorResult;
 }
