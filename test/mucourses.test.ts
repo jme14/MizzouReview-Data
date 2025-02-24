@@ -1,5 +1,5 @@
 import {describe, expect, test} from "vitest"
-import {mucoursesData, getCourses, getCoursesByProfessor} from "../src/mucourses"
+import {someMiddleInitial, mucoursesData, getCourses, getCoursesByProfessor} from "../src/mucourses"
 
 /*
 describe("API access", () => {
@@ -26,16 +26,22 @@ describe("API access", () => {
     })
 })
 */
+describe("name regex", () => {
+    test("jimr", () => {
+        expect(someMiddleInitial("James", "Ries", "RIES,JAMES E")).toBe(true)
+    })
+})
 describe("API result filtering", () => {
     test("getCourses by instructor name, known", async() => {
         const results: mucoursesData[] = await getCoursesByProfessor("Jill", "Moreland", "Annette")
         expect(results.length).toBeGreaterThan(0)
-        console.log(results)
+        //console.log(results)
     })
 
     test("getCourses by instructor name, unknown", async() => {
-        const results: mucoursesData[] = await getCoursesByProfessor("Ries", "James")
+        const results: mucoursesData[] = await getCoursesByProfessor("James", "Ries")
         expect(results.length).toBeGreaterThan(0)
+        expect(results.length).toBeLessThan(1000)
         console.log(results)
 
     })

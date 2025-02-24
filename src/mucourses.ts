@@ -27,10 +27,14 @@ export async function getCourses(): Promise<mucoursesData[]> {
     return []
 }
 
+// TODO: move name handling to a different module
+export function someMiddleInitial(fname: string, lname: string, str: string): boolean {
+    const lastInitial = new RegExp(`${lname.toUpperCase()},${fname.toUpperCase()} [A-Z]`)
+    return lastInitial.test(str.trim())
+}
 export async function getCoursesByProfessor(fname: string, lname: string, mname?: string):Promise<mucoursesData[]>{
     
     let allCourses = await getCourses() 
-
     const professorNameStringNoMiddle = `${lname},${fname}`
     const professorNameStringMiddleInitial = `${lname},${fname} ${mname?.slice(0,1)}`
     const professorNameStringMiddleName = `${lname},${fname} ${mname}`
@@ -38,17 +42,13 @@ export async function getCoursesByProfessor(fname: string, lname: string, mname?
     const potentialNames = [professorNameStringMiddleInitial, professorNameStringMiddleName, professorNameStringNoMiddle]
     const results: mucoursesData[] = []
 
-    function someMiddleInitial(str: string): boolean {
-        const pattern = /${lname},${fname} [A-Z]/
-        return pattern.test(str)
-    }
     
     // might be able to speed up
     allCourses.forEach((course: mucoursesData) => {
         if(potentialNames.includes(course.instructor)){
             results.push(course)
         }
-        else if (someMiddleInitial(course.instructor)){
+        else if (someMiddleInitial(fname, lname, course.instructor)){
             results.push(course)
         }
     })
@@ -57,5 +57,5 @@ export async function getCoursesByProfessor(fname: string, lname: string, mname?
         return results
     }
 
-
+    return []
 }
