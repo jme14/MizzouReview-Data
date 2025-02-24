@@ -27,8 +27,11 @@ describe("API access", () => {
 })
 */
 describe("name regex", () => {
-    test("jimr", () => {
+    test("Middle initial", () => {
         expect(someMiddleInitial("James", "Ries", "RIES,JAMES E")).toBe(true)
+    })
+    test("Middle name", () => {
+        expect(someMiddleInitial("Jill", "Moreland", "Moreland,Jill Annette".toUpperCase())).toBe(true)
     })
 })
 describe("API result filtering", () => {
@@ -38,11 +41,24 @@ describe("API result filtering", () => {
         //console.log(results)
     })
 
-    test("getCourses by instructor name, unknown", async() => {
+    test("getCourses by instructor name, middle initial unknown", async() => {
         const results: mucoursesData[] = await getCoursesByProfessor("James", "Ries")
         expect(results.length).toBeGreaterThan(0)
         expect(results.length).toBeLessThan(1000)
         console.log(results)
+    })
+    test("getCourses by instructor name, middle name unknown", async() => {
+        const jillResults: mucoursesData[] = await getCoursesByProfessor("Jill", "Moreland")
+        expect(jillResults.length).toBeGreaterThan(0)
+        expect(jillResults.length).toBeLessThan(1000)
+
+        //const jurczykResults: mucoursesData[] = await getCoursesByProfessor("Michael", "Jurczyk")
+
+        const mckenzieResults: mucoursesData[] = await getCoursesByProfessor("Gary", "McKenzie")
+        expect(mckenzieResults.length).toBeGreaterThan(0)
+        expect(mckenzieResults.length).toBeLessThan(1000)
+        console.log(mckenzieResults)
+
 
     })
 })
