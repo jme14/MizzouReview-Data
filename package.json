@@ -9,6 +9,7 @@
     "dev": "npm run build && npm run start",
     "test-all": "npx vitest",
     "test-mucourses": "npx vitest test/mucourses.test.ts", 
+    "test-names": "npx vitest test/names.test.ts", 
     "mucourses": "npm run build && node dist/mucourses.js"
   },
   "repository": {

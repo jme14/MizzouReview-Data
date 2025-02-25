@@ -1,5 +1,5 @@
 import {describe, expect, test} from "vitest"
-import {someMiddleInitial, mucoursesData, getCourses, getCoursesByProfessor} from "../src/mucourses"
+import {mucoursesData, getCourses, getCoursesByProfessor} from "../src/mucourses"
 
 /*
 describe("API access", () => {
@@ -26,14 +26,6 @@ describe("API access", () => {
     })
 })
 */
-describe("name regex", () => {
-    test("Middle initial", () => {
-        expect(someMiddleInitial("James", "Ries", "RIES,JAMES E")).toBe(true)
-    })
-    test("Middle name", () => {
-        expect(someMiddleInitial("Jill", "Moreland", "Moreland,Jill Annette".toUpperCase())).toBe(true)
-    })
-})
 describe("API result filtering", () => {
     test("getCourses by instructor name, known", async() => {
         const results: mucoursesData[] = await getCoursesByProfessor("Jill", "Moreland", "Annette")
