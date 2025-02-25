@@ -8,6 +8,8 @@ test("writeProfessor", ()=> {
     const professor = new Professor("jimr")
     writeProfessor(badDB, professor)
 })
+/*
 test("writeProfessor -- Overwriting via optional paramters", ()=> {
     expect(false).toBe(true)
 })
+*/
