@@ -1,47 +1,25 @@
-import { initializeApp, applicationDefault, cert } from "firebase-admin/app";
-import {
-    getFirestore,
-    Firestore,
-    Timestamp,
-    FieldValue,
-    Filter,
-    CollectionReference,
-    DocumentReference,
-} from "firebase-admin/firestore";
+// this is for testing the complete process of looking professors up,
+// searching the relevent fields, and populating their information
 
-import {
-    ObjectiveMetrics,
-    SubjectiveMetrics,
-    BasicInfo,
-    Professor,
-    AIPromptAnswers,
-} from "./models/professor";
-import { writeProfessor, getProfessorsFromDepartment, getProfessorFromID } from "./database";
+import {getProfessorNames} from "./mucatalog"
+import {getCoursesByProfessor} from "./mucourses"
+import {getArticleContentByName} from "./wikipedia" 
 
-const firebaseConfig = {
-    credential: cert(require("../keys/admin.json")),
-};
+import { Professor } from "./models/professor"
 
-const app = initializeApp(firebaseConfig);
-const db: Firestore = getFirestore(app);
+const TESTING = true
+async function main(){
 
-async function test_read_write(db: Firestore, prof: Professor) {
-    const id = prof.professorId;
-    await writeProfessor(db, prof);
-    const doc = await getProfessorFromID(db, id)
-    console.log("This is the document I obtained:")
-    console.log(doc)
-    const all_cs_profs = await getProfessorsFromDepartment(db, "Computer Science")
-    all_cs_profs.forEach((prof) => console.log(prof))
+    // get professor names 
+    let allProfessorNames = await getProfessorNames()
+    // if testing, make names a subset 
+    if (TESTING){
+        allProfessorNames = allProfessorNames.slice(0,20)
+    }
+
+    // get mucourses data
+
+    // apply wikipedia search
+
+    // write to database 
 }
-
-test_read_write(
-    db,
-    new Professor("jimr", {
-        basicInfo: {
-            fname: "Jim",
-            lname: "Ries",
-            department: "Computer Science",
-        },
-    })
-);

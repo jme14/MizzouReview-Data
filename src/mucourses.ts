@@ -1,7 +1,6 @@
 // this file is for interacting with the mucourses api
 import axios from 'axios';
-import {someMiddleInitial, someMiddleName} from "../src/names"
-
+import { Name } from './models/name';
 export type mucoursesData = {
     dept: string;
     title: string;
@@ -29,43 +28,35 @@ export async function getCourses(): Promise<mucoursesData[]> {
 }
 
 export async function getCoursesByProfessor(
-    fname: string,
-    lname: string,
-    mname?: string,
+    name: Name
 ): Promise<mucoursesData[]> {
-    let allCourses = await getCourses();
-    const professorNameStringNoMiddle = `${lname},${fname}`;
-    const professorNameStringMiddleInitial = `${lname},${fname} ${mname?.slice(
-        0,
-        1,
-    )}`;
-    const professorNameStringMiddleName = `${lname},${fname} ${mname}`;
 
-    const potentialNames = [
-        professorNameStringMiddleInitial,
-        professorNameStringMiddleName,
-        professorNameStringNoMiddle,
-    ];
-    const results: mucoursesData[] = [];
+    let allCourses = await getCourses();
+    const exactResults: mucoursesData[] = [];
+    const almostResults: mucoursesData[] = [];
 
     // might be able to speed up
     allCourses.forEach((course: mucoursesData) => {
-        if (potentialNames.includes(course.instructor)) {
-            results.push(course);
-        // TODO: make this faster?
-        // if no middle name,  check for instances of a middle name or middle initial
-        } else if (mname == undefined) {
-            if (someMiddleInitial(fname, lname, course.instructor)) {
-                results.push(course);
-            } else if (someMiddleName(fname, lname, course.instructor)) {
-                results.push(course);
-            }
+        const instructor = Name.getNameFromString(course.instructor, "{lname}, {fname} {mname}") 
+
+        console.log(instructor)
+        console.log(name)
+        // exact name similarity
+        if (instructor === name){
+            exactResults.push(course)
         }
+        // almost the same name 
+        else if (instructor.equalityIgnoringMiddleName(name)){
+            almostResults.push(course)
+        }
+
     });
 
-    if (results.length != 0) {
-        return results;
+    // if an exact match, return 
+    if (exactResults.length != 0) {
+        return exactResults;
     }
 
-    return [];
+    // if no exact matches, return what almost captured
+    return almostResults;
 }

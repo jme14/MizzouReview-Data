@@ -1,7 +1,7 @@
 import {describe, expect, test} from "vitest"
 import {mucoursesData, getCourses, getCoursesByProfessor} from "../src/mucourses"
+import { Name } from "../src/models/name"
 
-/*
 describe("API access", () => {
     test("getCourses defined", async ()=> {
         const data = await getCourses()
@@ -25,31 +25,31 @@ describe("API access", () => {
         console.log(keySet)
     })
 })
-*/
 describe("API result filtering", () => {
     test("getCourses by instructor name, known", async() => {
-        const results: mucoursesData[] = await getCoursesByProfessor("Jill", "Moreland", "Annette")
+        const name = new Name("Jill", "Moreland", ["Annette"])
+        const results: mucoursesData[] = await getCoursesByProfessor(name)
         expect(results.length).toBeGreaterThan(0)
         //console.log(results)
     })
 
     test("getCourses by instructor name, middle initial unknown", async() => {
-        const results: mucoursesData[] = await getCoursesByProfessor("James", "Ries")
+        const name = new Name("James", "Ries")
+        const results: mucoursesData[] = await getCoursesByProfessor(name)
         expect(results.length).toBeGreaterThan(0)
         expect(results.length).toBeLessThan(1000)
         console.log(results)
     })
     test("getCourses by instructor name, middle name unknown", async() => {
-        const jillResults: mucoursesData[] = await getCoursesByProfessor("Jill", "Moreland")
+        const jillName = new Name("Jill", "Moreland")
+        const jillResults: mucoursesData[] = await getCoursesByProfessor(jillName)
         expect(jillResults.length).toBeGreaterThan(0)
         expect(jillResults.length).toBeLessThan(1000)
 
-        //const jurczykResults: mucoursesData[] = await getCoursesByProfessor("Michael", "Jurczyk")
-
-        const mckenzieResults: mucoursesData[] = await getCoursesByProfessor("Gary", "McKenzie")
+        const mckenzieName = new Name("Gary", "McKenzie")
+        const mckenzieResults: mucoursesData[] = await getCoursesByProfessor(mckenzieName)
         expect(mckenzieResults.length).toBeGreaterThan(0)
         expect(mckenzieResults.length).toBeLessThan(1000)
-        console.log(mckenzieResults)
 
 
     })
