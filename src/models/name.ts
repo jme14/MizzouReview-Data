@@ -27,11 +27,11 @@ export class Name {
 
     static getNameFromString(strToFormat: string, formatting: string): Name {
         let pattern = formatting
-            .replace('{fname}', '(?<fname>\\w+)')
+            .replace('{fname}', '(?<fname>[\\w\-]+)')
             // remove the white space around mname if it exists
             // then, on right, optionally replace with formatter that includes any amount of words with spaces
             .replace(/\s*\{mname\}\s*/, '(?:\\s+(?<mname>[\\w\\s]+))?\\s+')
-            .replace('{lname}', '(?<lname>\\w+)');
+            .replace('{lname}', '(?<lname>[\\w\\s\-]+)');
 
         let regex = new RegExp(`^${pattern}$`);
         let match = strToFormat.match(regex);

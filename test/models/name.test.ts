@@ -42,5 +42,20 @@ describe('Testing static name creation', () => {
         const myName = Name.getNameFromString(exampleName, '{lname}, {fname} {mname}');
         expect(myName).toStrictEqual(new Name("Jim", "Ries"))
     });
+    test('{lname}, {fname} {mname} with last name with spaces', () => {
+        const exampleName = 'Ries Piece, Jim';
+        const myName = Name.getNameFromString(exampleName, '{lname}, {fname} {mname}');
+        expect(myName).toStrictEqual(new Name("Jim", "Ries Piece"))
+    });
+    test('{lname}, {fname} {mname} with last name having a dash', () => {
+        const exampleName = 'Ries-Piece, Jim';
+        const myName = Name.getNameFromString(exampleName, '{lname}, {fname} {mname}');
+        expect(myName).toStrictEqual(new Name("Jim", "Ries-Piece"))
+    });
+    test('{lname}, {fname} {mname} with first name having a dash', () => {
+        const exampleName = 'Ries, Jim-R';
+        const myName = Name.getNameFromString(exampleName, '{lname}, {fname} {mname}');
+        expect(myName).toStrictEqual(new Name("Jim-R", "Ries"))
+    });
 
 });
