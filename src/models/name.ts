@@ -10,6 +10,20 @@ export class Name {
             this.mname = mname;
         }
     }
+    equals(other: Name): boolean {
+        return (
+            this.fname === other.fname &&
+            this.lname === other.lname &&
+            this.mname === other.mname
+        );
+    }
+
+    equalityIgnoringMiddleName(other: Name): boolean{
+        return (
+            this.fname === other.fname &&
+            this.lname === other.lname 
+        );
+    } 
 
     static getNameFromString(strToFormat: string, formatting: string): Name {
         let pattern = formatting
@@ -23,13 +37,13 @@ export class Name {
         let match = strToFormat.match(regex);
 
         if (!match || !match.groups) {
-            // TODO: fix this stupidity lol 
+            // TODO: fix this stupidity lol
             if (strToFormat.endsWith(' ')) {
                 throw new Error(
                     `String '${strToFormat}' does not match format '${formatting}'`,
                 );
             } else {
-                return Name.getNameFromString(strToFormat + " ", formatting)
+                return Name.getNameFromString(strToFormat + ' ', formatting);
             }
         }
 
