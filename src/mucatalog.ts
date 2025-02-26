@@ -1,6 +1,8 @@
 import axios from "axios"
 import * as cheerio from "cheerio"
 
+import { Name } from "./models/name";
+
 export async function fetchCatalogPage(): Promise<string>{
     try {
         const { data } = await axios.get(
@@ -13,7 +15,7 @@ export async function fetchCatalogPage(): Promise<string>{
     return "";
 }
 
-export async function getProfessorNames(): Promise<string[]>{
+export async function getProfessorNames(): Promise<Name[]>{
     const webpageContent = await fetchCatalogPage()
     if (webpageContent == ""){
         return [] 
@@ -21,6 +23,6 @@ export async function getProfessorNames(): Promise<string[]>{
 
     const $ = cheerio.load(webpageContent)
     const elementArray = $("strong").toArray().map((x) => $(x).text())
-    elementArray.forEach(elem => console.log(elem))
-    return elementArray
+    const nameArray = elementArray.map(elem => Name.getNameFromString(elem, "{lname}, {fname} {mname}"))
+    return nameArray 
 }
