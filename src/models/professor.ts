@@ -1,27 +1,22 @@
+import {Name} from "../../src/models/name"
 export class BasicInfo {
-    fname: string;
-    lname: string;
+    name: Name;
     department: string;
-    mname?: string;
     title?: string;
     education?: string;
     tenure?: number;
 
     constructor(
-        fname: string,
-        lname: string,
+        name: Name,
         department: string,
         options: {
-            mname?: string;
             title?: string;
             education?: string;
             tenure?: number;
         } = {},
     ) {
-        this.fname = fname;
-        this.lname = lname;
+        this.name = name
         this.department = department;
-        this.mname = options.mname;
         this.title = options.title;
         this.education = options.education;
         this.tenure = options.tenure;
@@ -138,11 +133,9 @@ export class Professor {
         // Create a BasicInfo instance if the object has the necessary fields
         const basicInfo = jsonObject.basicInfo
             ? new BasicInfo(
-                  jsonObject.basicInfo.fname,
-                  jsonObject.basicInfo.lname,
+                  jsonObject.basicInfo.name,
                   jsonObject.basicInfo.department,
                   {
-                      mname: jsonObject.basicInfo.mname,
                       title: jsonObject.basicInfo.title,
                       education: jsonObject.basicInfo.education,
                       tenure: jsonObject.basicInfo.tenure,
