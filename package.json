@@ -8,6 +8,7 @@
     "start": "node dist/main.js",
     "dev": "npm run build && npm run start",
     "test-all": "npx vitest",
+    "test-main": "npx vitest test/main.test.ts",
     "test-mucourses": "npx vitest test/mucourses.test.ts",
     "test-wikipedia": "npx vitest test/wikipedia.test.ts",
     "test-mucatalog": "npx vitest test/mucatalog.test.ts",
