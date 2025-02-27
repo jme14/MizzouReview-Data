@@ -24,6 +24,9 @@ export class Name {
             this.lname === other.lname 
         );
     } 
+    toString(){
+        return `${this.fname} ${this.lname}`
+    }
 
     static getNameFromString(strToFormat: string, formatting: string): Name {
         let pattern = formatting
