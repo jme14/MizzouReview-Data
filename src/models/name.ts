@@ -33,7 +33,9 @@ export class Name {
             .replaceAll('`', '')
             .replaceAll('‰', '')
             .replaceAll(', ', ',')
-            .replaceAll('/', ' ');
+            .replaceAll('/', ' ')
+            .replaceAll('\u00AD',"")
+            .replace(/\([\w]+\)/g, "")
 
         // attempt to fix weird api name issues
         function hasMojibake(str: string) {
@@ -62,7 +64,6 @@ export class Name {
         let regex = new RegExp(`^${pattern}$`, 'u');
         let match = strToFormat.match(regex);
 
-        console.log(regex)
         if (!match || !match.groups) {
             // TODO: fix this stupidity lol
             if (strToFormat.endsWith(' ')) {
