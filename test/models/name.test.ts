@@ -22,39 +22,39 @@ describe('Testing static name creation', () => {
         const myName = Name.getNameFromString(exampleName, '{fname} {mname} {lname}');
         expect(myName).toStrictEqual(new Name("Jim", "Ries"))
     });
-    test('{lname}, {fname}', () => {
+    test('{lname},{fname}', () => {
         const exampleName = 'Ries, Jim';
-        const myName = Name.getNameFromString(exampleName, '{lname}, {fname}');
+        const myName = Name.getNameFromString(exampleName, '{lname},{fname}');
         expect(myName).toStrictEqual(new Name("Jim", "Ries"))
     });
-    test('{lname}, {fname} {mname}', () => {
+    test('{lname},{fname} {mname}', () => {
         const exampleName = 'Ries, Jim E';
-        const myName = Name.getNameFromString(exampleName, '{lname}, {fname} {mname}');
+        const myName = Name.getNameFromString(exampleName, '{lname},{fname} {mname}');
         expect(myName).toStrictEqual(new Name("Jim", "Ries", ["E"]))
     });
-    test('{lname}, {fname} {mname} with more than 1 middle name', () => {
+    test('{lname},{fname} {mname} with more than 1 middle name', () => {
         const exampleName = 'Ries, Jim Edward Smitty';
-        const myName = Name.getNameFromString(exampleName, '{lname}, {fname} {mname}');
+        const myName = Name.getNameFromString(exampleName, '{lname},{fname} {mname}');
         expect(myName).toStrictEqual(new Name("Jim", "Ries", ["Edward", "Smitty"]))
     });
-    test('{lname}, {fname} {mname} with no middle names', () => {
+    test('{lname},{fname} {mname} with no middle names', () => {
         const exampleName = 'Ries, Jim';
-        const myName = Name.getNameFromString(exampleName, '{lname}, {fname} {mname}');
+        const myName = Name.getNameFromString(exampleName, '{lname},{fname} {mname}');
         expect(myName).toStrictEqual(new Name("Jim", "Ries"))
     });
-    test('{lname}, {fname} {mname} with last name with spaces', () => {
+    test('{lname},{fname} {mname} with last name with spaces', () => {
         const exampleName = 'Ries Piece, Jim';
-        const myName = Name.getNameFromString(exampleName, '{lname}, {fname} {mname}');
+        const myName = Name.getNameFromString(exampleName, '{lname},{fname} {mname}');
         expect(myName).toStrictEqual(new Name("Jim", "Ries Piece"))
     });
-    test('{lname}, {fname} {mname} with last name having a dash', () => {
+    test('{lname},{fname} {mname} with last name having a dash', () => {
         const exampleName = 'Ries-Piece, Jim';
-        const myName = Name.getNameFromString(exampleName, '{lname}, {fname} {mname}');
+        const myName = Name.getNameFromString(exampleName, '{lname},{fname} {mname}');
         expect(myName).toStrictEqual(new Name("Jim", "Ries-Piece"))
     });
-    test('{lname}, {fname} {mname} with first name having a dash', () => {
+    test('{lname},{fname} {mname} with first name having a dash', () => {
         const exampleName = 'Ries, Jim-R';
-        const myName = Name.getNameFromString(exampleName, '{lname}, {fname} {mname}');
+        const myName = Name.getNameFromString(exampleName, '{lname},{fname} {mname}');
         expect(myName).toStrictEqual(new Name("Jim-R", "Ries"))
     });
 
