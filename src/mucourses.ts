@@ -27,20 +27,24 @@ export async function getCourses(): Promise<mucoursesData[]> {
     return [];
 }
 
-export async function getCoursesByProfessor(
-    name: Name
-): Promise<mucoursesData[]> {
+export function getCoursesByProfessor(
+    name: Name,
+    allCourses: mucoursesData[]
+): mucoursesData[] {
 
-    let allCourses = await getCourses();
     const exactResults: mucoursesData[] = [];
     const almostResults: mucoursesData[] = [];
 
+    const emptyCourses = allCourses.filter((course) => course.instructor === "") 
+    emptyCourses.forEach((course) => console.log(course))
+
+    // TODO: this is bad 
+    allCourses = allCourses.filter((course) => course.instructor !== "")
+
     // might be able to speed up
     allCourses.forEach((course: mucoursesData) => {
-        const instructor = Name.getNameFromString(course.instructor, "{lname}, {fname} {mname}") 
+        const instructor = Name.getNameFromString(course.instructor, "{lname},{fname} {mname}") 
 
-        console.log(instructor)
-        console.log(name)
         // exact name similarity
         if (instructor === name){
             exactResults.push(course)

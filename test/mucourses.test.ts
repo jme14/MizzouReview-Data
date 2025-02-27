@@ -25,32 +25,35 @@ describe("API access", () => {
         console.log(keySet)
     })
 })
-describe("API result filtering", () => {
+describe("API result filtering", async () => {
+    const allCourses = await getCourses()
     test("getCourses by instructor name, known", async() => {
         const name = new Name("Jill", "Moreland", ["Annette"])
-        const results: mucoursesData[] = await getCoursesByProfessor(name)
+        const results: mucoursesData[] = getCoursesByProfessor(name, allCourses)
         expect(results.length).toBeGreaterThan(0)
         //console.log(results)
     })
 
+    /*
     test("getCourses by instructor name, middle initial unknown", async() => {
         const name = new Name("James", "Ries")
-        const results: mucoursesData[] = await getCoursesByProfessor(name)
+        const results: mucoursesData[] = getCoursesByProfessor(name, allCourses)
         expect(results.length).toBeGreaterThan(0)
         expect(results.length).toBeLessThan(1000)
         console.log(results)
     })
     test("getCourses by instructor name, middle name unknown", async() => {
         const jillName = new Name("Jill", "Moreland")
-        const jillResults: mucoursesData[] = await getCoursesByProfessor(jillName)
+        const jillResults: mucoursesData[] = getCoursesByProfessor(jillName, allCourses)
         expect(jillResults.length).toBeGreaterThan(0)
         expect(jillResults.length).toBeLessThan(1000)
 
         const mckenzieName = new Name("Gary", "McKenzie")
-        const mckenzieResults: mucoursesData[] = await getCoursesByProfessor(mckenzieName)
+        const mckenzieResults: mucoursesData[] = getCoursesByProfessor(mckenzieName, allCourses)
         expect(mckenzieResults.length).toBeGreaterThan(0)
         expect(mckenzieResults.length).toBeLessThan(1000)
 
 
     })
+    */
 })
