@@ -20,7 +20,46 @@ export type mucoursesData = {
 export async function getCourses(): Promise<mucoursesData[]> {
     try {
         const { data } = await axios.get('https://mucourses.com/api/courses');
-        return data;
+        const fetchData:mucoursesData[] = data;
+        const validatedData: mucoursesData[] = fetchData.map(
+            (data: any) => {
+                return {
+                    dept: data.dept,
+                    title: data.title,
+                    number: data.number,
+                    section: data.section,
+                    term: data.term,
+                    instructor: data.instructor,
+                    arange:
+                        typeof data.arange === 'string'
+                            ? Number(data.arange)
+                            : data.arange,
+                    brange:
+                        typeof data.brange === 'string'
+                            ? Number(data.brange)
+                            : data.brange,
+                    crange:
+                        typeof data.crange === 'string'
+                            ? Number(data.crange)
+                            : data.crange,
+                    drange:
+                        typeof data.drange === 'string'
+                            ? Number(data.drange)
+                            : data.drange,
+                    frange:
+                        typeof data.frange === 'string'
+                            ? Number(data.frange)
+                            : data.frange,
+                    average:
+                        typeof data.average === 'string'
+                            ? Number(data.average)
+                            : data.average,
+                };
+            },
+        );
+        console.log(data)
+        console.log(validatedData)
+        return validatedData;
     } catch (error) {
         console.error('Error fetching courses:', error);
     }
@@ -29,34 +68,42 @@ export async function getCourses(): Promise<mucoursesData[]> {
 
 export function getCoursesByProfessor(
     name: Name,
-    allCourses: mucoursesData[]
+    allCourses: mucoursesData[],
 ): mucoursesData[] {
-
     const exactResults: mucoursesData[] = [];
     const almostResults: mucoursesData[] = [];
 
-    const emptyCourses = allCourses.filter((course) => course.instructor === "") 
-    emptyCourses.forEach((course) => console.log(course))
+    if (!allCourses){
+        throw new Error("allCourses undefined")
+    }
+    const emptyCourses = allCourses.filter(
+        (course) => course.instructor === '',
+    );
+    if (emptyCourses){
+        emptyCourses.forEach((course) => console.log(course));
+    }
 
-    // TODO: this is bad 
-    allCourses = allCourses.filter((course) => course.instructor !== "")
+    // TODO: this is bad
+    allCourses = allCourses.filter((course) => course.instructor !== '');
 
     // might be able to speed up
     allCourses.forEach((course: mucoursesData) => {
-        const instructor = Name.getNameFromString(course.instructor, "{lname},{fname} {mname}") 
+        const instructor = Name.getNameFromString(
+            course.instructor,
+            '{lname},{fname} {mname}',
+        );
 
         // exact name similarity
-        if (instructor === name){
-            exactResults.push(course)
+        if (instructor === name) {
+            exactResults.push(course);
         }
-        // almost the same name 
-        else if (instructor.equalityIgnoringMiddleName(name)){
-            almostResults.push(course)
+        // almost the same name
+        else if (instructor.equalityIgnoringMiddleName(name)) {
+            almostResults.push(course);
         }
-
     });
 
-    // if an exact match, return 
+    // if an exact match, return
     if (exactResults.length != 0) {
         return exactResults;
     }
