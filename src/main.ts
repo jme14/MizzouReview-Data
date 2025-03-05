@@ -10,12 +10,12 @@ import { Name } from './models/name';
 import { getCourses } from './mucourses';
 import { mucoursesData } from './mucourses';
 
-const TESTING = true;
+console.log(process.env.NODE_ENV)
 async function main() {
     // get professor names
     let allProfessorNames = await getProfessorNames();
     // if testing, make names a subset
-    if (TESTING) {
+    if (process.env.NODE_ENV == "development") {
         allProfessorNames = allProfessorNames.slice(0, 20);
     }
 
