@@ -26,39 +26,44 @@ async function main() {
         allProfessorNames = allProfessorNames.slice(0, 20);
     }
 
-    const allProfessors = allProfessorNames.map(
-        async (name) => await onProfessorName(name),
-    );
-    allProfessors.forEach((prof) => console.log(prof));
-}
-
-// the data analysis based on the professor name
-export async function onProfessorName(name: Name): Promise<Professor> {
-    // TODO these things
-    // check if professor exists
-    // if exists, get professor record and update
-    // if not exists, make professor id and new professor object
-
     // get mucourses data
     const allCourses = await getCourses();
     if (!allCourses) {
         throw new Error('Error with getCourses()');
     }
+
+    const allProfessors = allProfessorNames.map(
+        async (name) => await onProfessorName(name, allCourses),
+    );
+    allProfessors.forEach((prof) => console.log(prof));
+}
+
+// the data analysis based on the professor name
+export async function onProfessorName(name: Name, allCourses: mucoursesData[]): Promise<Professor> {
+    // TODO these things
+    // check if professor exists
+    // if exists, get professor record and update
+    // if not exists, make professor id and new professor object
+
     const courses = getCoursesByProfessor(name, allCourses);
     const totalCourses = courses.length;
 
-    const totalGPA = courses.reduce((sum: number, course: mucoursesData) => {
-        console.log(course.average);
-        return sum + course.average;
-    }, 0);
-    const averageGPA = Math.round((totalGPA / totalCourses) * 100) / 100;
+    let totalGPA = 0
+    let averageGPA = 0
+    if (totalCourses > 0){
+        totalGPA = courses.reduce((sum: number, course: mucoursesData) => {
+            console.log(course.average);
+            return sum + course.average;
+        }, 0);
+        averageGPA = Math.round((totalGPA / totalCourses) * 100) / 100;
+    }
 
     let articleContent = await getArticleContentByName(name);
-    if (articleContent != 'No Article') {
+    if (articleContent != 'No article') {
         articleContent = 'Article!';
     }
 
-    const basicInfo = new BasicInfo(name, 'CS');
+    const basicInfo = new BasicInfo(name, 'NEEDS COMPLETION');
     const objectiveMetrics = new ObjectiveMetrics(averageGPA, 0);
     const funFacts = new AIPromptAnswers({ funFacts: articleContent });
 
