@@ -22,6 +22,23 @@ type Result<T> = {
     data?: T;
 };
 
+export async function getAllProfessors(
+    db: Firestore
+): Promise<Professor[]> {
+
+    const docRef = db.collection('professors')
+    const allDocs = await docRef.get()
+    const allProfessors: Professor[] = []
+
+    allDocs.forEach((doc) =>{
+        const prof = Professor.initFromObject(doc)
+        if (prof.basicInfo !== undefined){
+            allProfessors.push(prof) 
+        }
+    })
+
+    return allProfessors
+}
 /**
  *
  * @param {Firestore} db
