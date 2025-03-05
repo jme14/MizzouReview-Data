@@ -1,5 +1,15 @@
 // this is for testing the complete process of looking professors up,
 // searching the relevent fields, and populating their information
+import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
+import {
+    getFirestore,
+    Firestore,
+    Timestamp,
+    FieldValue,
+    Filter,
+    CollectionReference,
+    DocumentReference,
+} from 'firebase-admin/firestore';
 
 import { getProfessorNames } from './mucatalog';
 import { getCoursesByProfessor } from './mucourses';
@@ -15,12 +25,34 @@ import {
 import { Name } from './models/name';
 import { getCourses } from './mucourses';
 import { mucoursesData } from './mucourses';
+import { getAllProfessors } from './database';
 
-main();
-async function main() {
+const firebaseConfig = {
+    credential: cert(require('../keys/admin.json')),
+};
+
+
+extractProfessorData();
+
+// program flow including the database, updating records on matches 
+async function mainWithDatabase(){
+
+    // getting database information 
+    const app = initializeApp(firebaseConfig);
+    const db: Firestore = getFirestore(app);
+
+    // TODO: run these at the same time 
+    const allDatabaseProfessors = await getAllProfessors(db)
+    const allProfessorObjects = await extractProfessorData()
+
+}
+// program flow for getting professor data 
+async function extractProfessorData(): Promise<Professor[]> {
     console.log(process.argv.slice(2));
-    // get professor names
+
+    // get professor names from mu catalog 
     let allProfessorNames = await getProfessorNames();
+
     // if testing, make names a subset
     if ( process.argv.slice(2)[0] == 'testing') {
         allProfessorNames = allProfessorNames.slice(0, 20);
@@ -32,10 +64,10 @@ async function main() {
         throw new Error('Error with getCourses()');
     }
 
-    const allProfessors = allProfessorNames.map(
+    const allProfessorPromises = allProfessorNames.map(
         async (name) => await onProfessorName(name, allCourses),
     );
-    allProfessors.forEach((prof) => console.log(prof));
+    return Promise.all(allProfessorPromises) 
 }
 
 // the data analysis based on the professor name
