@@ -43,13 +43,22 @@ export class Name {
             const mojibakePattern = /Ã±|Ã©|Ã¡|Ã³|Ãº|â€™|â€œ|â€�/;
             return mojibakePattern.test(str);
         }
+        function removeMojibake(str: string){
+            const mojibakePattern = /Ã±|Ã©|Ã¡|Ã³|Ãº|â€™|â€œ|â€�/;
+            return str.replace(mojibakePattern, "")
+
+        }
         function hasBrokenChar(str: string) {
             return str.includes('\uFFFD');
         }
+        function removeBrokenChar(str: string){
+            return str.replace('\uFFFD', "")
+        }
 
         if (hasMojibake(strToFormat) || hasBrokenChar(strToFormat)) {
-            console.log('WARNING: GENERATING FAKE NAME');
-            return new Name('Fake', 'Name');
+            console.log('WARNING: GENERATING FAULTY NAME');
+            // removing the characters giving trouble 
+            strToFormat = removeBrokenChar(removeMojibake(strToFormat))
         }
         let pattern = formatting
             .replace('{fname}', "(?<fname>[\\w\\-\\p{L}'‘]+)")
