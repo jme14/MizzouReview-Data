@@ -57,8 +57,6 @@ export async function getCourses(): Promise<mucoursesData[]> {
                 };
             },
         );
-        console.log(data)
-        console.log(validatedData)
         return validatedData;
     } catch (error) {
         console.error('Error fetching courses:', error);
