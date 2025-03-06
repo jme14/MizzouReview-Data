@@ -57,10 +57,18 @@ export async function getProfessorFromID(
     const docRef = db.collection('professors').doc(professorId);
     const docSnapshot = await docRef.get();
 
-    if (docSnapshot.exists) {
-        return Professor.initFromObject(docSnapshot.data());
-    } else {
-        return null;
+    if (!docSnapshot.exists){
+        return null
+    }
+    const docData = docSnapshot.data()
+    if (!docData){
+        return null
+    }
+    else if (!docData.professorId) {
+        return null
+    }
+    else {
+        return Professor.initFromObject(docData)
     }
 }
 
