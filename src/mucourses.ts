@@ -68,38 +68,30 @@ export function getCoursesByProfessor(
     name: Name,
     allCourses: mucoursesData[],
 ): mucoursesData[] {
-    const exactResults: mucoursesData[] = [];
-    const almostResults: mucoursesData[] = [];
 
     if (!allCourses){
         throw new Error("allCourses undefined")
     }
-    const emptyCourses = allCourses.filter(
-        (course) => course.instructor === '',
-    );
-    if (emptyCourses){
-        emptyCourses.forEach((course) => console.log(course));
-    }
 
-    // TODO: this is bad
+    // remove courses without an instructor  
     allCourses = allCourses.filter((course) => course.instructor !== '');
 
-    // might be able to speed up
-    allCourses.forEach((course: mucoursesData) => {
-        const instructor = Name.getNameFromString(
-            course.instructor,
-            '{lname},{fname} {mname}',
-        );
+    const exactResultsEmpty: mucoursesData[] = [];
+    const almostResultsEmpty: mucoursesData[] = [];
 
-        // exact name similarity
-        if (instructor === name) {
-            exactResults.push(course);
+    // can you tell I just learned how to use reduce?
+    const [exactResults, almostResults] = allCourses.reduce((buckets, course) => {
+        const instructorName = Name.getNameFromString(course.instructor, '{lname},{fname} {mname}')
+        if (instructorName === name) {
+            // put into exact bucket 
+            buckets[0].push(course)
+        } else if (instructorName.equalityIgnoringMiddleName(name)){
+            // put into almost bucket 
+            buckets[1].push(course)
         }
-        // almost the same name
-        else if (instructor.equalityIgnoringMiddleName(name)) {
-            almostResults.push(course);
-        }
-    });
+        return buckets
+
+    }, [exactResultsEmpty, almostResultsEmpty])
 
     // if an exact match, return
     if (exactResults.length != 0) {
