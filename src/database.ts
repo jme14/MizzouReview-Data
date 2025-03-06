@@ -31,7 +31,12 @@ export async function getAllProfessors(
     const allProfessors: Professor[] = []
 
     allDocs.forEach((doc) =>{
-        const prof = Professor.initFromObject(doc)
+        const data = doc.data()
+        if (!data.professorId){
+            return
+        }
+        console.log(doc.data())
+        const prof = Professor.initFromObject(doc.data())
         if (prof.basicInfo !== undefined){
             allProfessors.push(prof) 
         }

@@ -32,8 +32,8 @@ const firebaseConfig = {
 };
 
 
-extractProfessorData();
-
+console.log(process.argv.slice(2))
+mainWithDatabase()
 // program flow including the database, updating records on matches 
 async function mainWithDatabase(){
 
@@ -45,6 +45,24 @@ async function mainWithDatabase(){
     const allDatabaseProfessors = await getAllProfessors(db)
     const allProfessorObjects = await extractProfessorData()
 
+    const pInDB: Professor[] = []
+    const pNotInDB: Professor[] = []
+
+    // this creates two arrays based off if the professor is already in the database 
+    const [professorsInDatabase, professorsNotInDatabase] = allProfessorObjects.reduce((profs, prof) => {
+        // this returns true on prof existing in array and false on not  
+        const inDatabase = allDatabaseProfessors.some((dbProf) => {
+            if (!dbProf.basicInfo || !prof.basicInfo){
+                return false
+            } 
+            return dbProf.basicInfo.name == prof.basicInfo.name
+        })
+        // this pushes to first array if it's in database and second array if it isn't in the database 
+        profs[inDatabase ? 0 : 1].push(prof)
+        return profs
+    }, [pInDB, pNotInDB])
+
+    return true 
 }
 // program flow for getting professor data 
 async function extractProfessorData(): Promise<Professor[]> {
