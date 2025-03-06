@@ -26,6 +26,7 @@ import { Name } from './models/name';
 import { getCourses } from './mucourses';
 import { mucoursesData } from './mucourses';
 import { getAllProfessors } from './database';
+import { initializeProfessor, updateProfessor } from './database';
 
 const firebaseConfig = {
     credential: cert(require('../keys/admin.json')),
@@ -62,6 +63,9 @@ async function mainWithDatabase(){
         return profs
     }, [pInDB, pNotInDB])
 
+    professorsNotInDatabase.forEach((prof) => initializeProfessor(db, prof))
+    professorsInDatabase.forEach(((prof) => updateProfessor(db, prof)))
+    console.log("Done?")
     return true 
 }
 // program flow for getting professor data 
