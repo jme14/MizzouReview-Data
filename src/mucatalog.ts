@@ -22,7 +22,14 @@ export async function getProfessorNames(): Promise<Name[]>{
     }
 
     const $ = cheerio.load(webpageContent)
-    const elementArray = $("strong").toArray().map((x) => $(x).text())
-    const nameArray = elementArray.map(elem => Name.getNameFromString(elem, "{lname},{fname} {mname}"))
+    const paragraphs = $("p")
+    const paragraphsWithStrong = paragraphs.has("strong")
+    const nameArray: Name[] = [] 
+    paragraphsWithStrong.each((i, el) => {
+        console.log($(el).text())
+        const nameString = $(el).find('strong').text()
+        nameArray.push(Name.getNameFromString(nameString, "{lname},{fname} {mname}"))
+    })
+
     return nameArray 
 }
