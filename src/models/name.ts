@@ -56,7 +56,7 @@ export class Name {
         }
 
         if (hasMojibake(strToFormat) || hasBrokenChar(strToFormat)) {
-            console.log('WARNING: GENERATING FAULTY NAME');
+            // console.log('WARNING: GENERATING FAULTY NAME');
             // removing the characters giving trouble 
             strToFormat = removeBrokenChar(removeMojibake(strToFormat))
         }
@@ -81,7 +81,7 @@ export class Name {
                 );
                 // if no comma present but there should be
             } else if (formatting.includes(',') && !strToFormat.includes(',')) {
-                console.log('NO COMMA BUT THERE SHOULD BE');
+                // console.log('NO COMMA BUT THERE SHOULD BE');
                 if (strToFormat.includes(' ')) {
                     return Name.getNameFromString(
                         strToFormat.replace(' ', ','),
@@ -93,7 +93,7 @@ export class Name {
                 }
                 // if comma only at the end, guess that the comma should replace the first space
             } else if (strToFormat.includes(',') && strToFormat.endsWith(',')) {
-                console.log('COMMA AT THE END TRYING TO FIND A BETTER SOPT');
+                // console.log('COMMA AT THE END TRYING TO FIND A BETTER SOPT');
                 return Name.getNameFromString(
                     strToFormat
                         .replace(' ', ',')
