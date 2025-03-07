@@ -33,7 +33,6 @@ const firebaseConfig = {
 };
 
 
-console.log(process.argv.slice(2))
 mainWithDatabase()
 // program flow including the database, updating records on matches 
 async function mainWithDatabase(){
@@ -121,7 +120,7 @@ export async function onProfessorBasicInfo(basicInfo: BasicInfo, allCourses: muc
     const funFacts = new AIPromptAnswers({ funFacts: articleContent });
 
     // make professor object (needs changing when database module complete)
-    return new Professor('testing', {
+    return new Professor(basicInfo.toString(), {
         basicInfo: basicInfo,
         objectiveMetrics: objectiveMetrics,
         aIPromptAnswers: funFacts,
