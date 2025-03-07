@@ -11,7 +11,7 @@ import {
     DocumentReference,
 } from 'firebase-admin/firestore';
 
-import { getProfessorNames } from './mucatalog';
+import { getProfessorBasicInfo } from './mucatalog'
 import { getCoursesByProfessor } from './mucourses';
 import { getArticleContentByName } from './wikipedia';
 
@@ -73,11 +73,11 @@ async function extractProfessorData(): Promise<Professor[]> {
     console.log(process.argv.slice(2));
 
     // get professor names from mu catalog 
-    let allProfessorNames = await getProfessorNames();
+    let allProfessorBasicInfo = await getProfessorBasicInfo();
 
     // if testing, make names a subset
     if ( process.argv.slice(2)[0] == 'testing') {
-        allProfessorNames = allProfessorNames.slice(0, 20);
+        allProfessorBasicInfo = allProfessorBasicInfo.slice(0, 20);
     }
 
     // get mucourses data
@@ -86,20 +86,20 @@ async function extractProfessorData(): Promise<Professor[]> {
         throw new Error('Error with getCourses()');
     }
 
-    const allProfessorPromises = allProfessorNames.map(
-        async (name) => await onProfessorName(name, allCourses),
+    const allProfessorPromises = allProfessorBasicInfo.map(
+        async (name) => await onProfessorBasicInfo(name, allCourses),
     );
     return Promise.all(allProfessorPromises) 
 }
 
 // the data analysis based on the professor name
-export async function onProfessorName(name: Name, allCourses: mucoursesData[]): Promise<Professor> {
+export async function onProfessorBasicInfo(basicInfo: BasicInfo, allCourses: mucoursesData[]): Promise<Professor> {
     // TODO these things
     // check if professor exists
     // if exists, get professor record and update
     // if not exists, make professor id and new professor object
 
-    const courses = getCoursesByProfessor(name, allCourses);
+    const courses = getCoursesByProfessor(basicInfo.name, allCourses);
     const totalCourses = courses.length;
 
     let totalGPA = 0
@@ -112,12 +112,11 @@ export async function onProfessorName(name: Name, allCourses: mucoursesData[]): 
         averageGPA = Math.round((totalGPA / totalCourses) * 100) / 100;
     }
 
-    let articleContent = await getArticleContentByName(name);
+    let articleContent = await getArticleContentByName(basicInfo.name);
     if (articleContent != 'No article') {
         articleContent = 'Article!';
     }
 
-    const basicInfo = new BasicInfo(name, 'NEEDS COMPLETION');
     const objectiveMetrics = new ObjectiveMetrics(averageGPA, 0);
     const funFacts = new AIPromptAnswers({ funFacts: articleContent });
 

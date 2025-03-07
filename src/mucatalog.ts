@@ -2,6 +2,7 @@ import axios from "axios"
 import * as cheerio from "cheerio"
 
 import { Name } from "./models/name";
+import { BasicInfo } from "./models/professor";
 
 export async function fetchCatalogPage(): Promise<string>{
     try {
@@ -15,6 +16,28 @@ export async function fetchCatalogPage(): Promise<string>{
     return "";
 }
 
+export async function getProfessorBasicInfo(): Promise<BasicInfo[]>{
+    const webpageContent = await fetchCatalogPage()
+    if (webpageContent == ""){
+        return [] 
+    }
+
+    const $ = cheerio.load(webpageContent)
+    const paragraphs = $("p")
+    const paragraphsWithStrong = paragraphs.has("strong")
+    const nameArray: Name[] = [] 
+    paragraphsWithStrong.each((i, el) => {
+        console.log($(el).text())
+        const nameString = $(el).find('strong').text()
+        nameArray.push(Name.getNameFromString(nameString, "{lname},{fname} {mname}"))
+        console.log("Here are my arrays")
+        console.log(nameString.split(";"))
+    })
+
+
+
+    return []
+}
 export async function getProfessorNames(): Promise<Name[]>{
     const webpageContent = await fetchCatalogPage()
     if (webpageContent == ""){
