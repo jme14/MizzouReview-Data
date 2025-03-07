@@ -21,6 +21,9 @@ export class BasicInfo {
         this.education = options.education;
         this.tenure = options.tenure;
     }
+    toString(): string{
+        return this.name + this.department
+    }
 }
 
 export class ObjectiveMetrics {
