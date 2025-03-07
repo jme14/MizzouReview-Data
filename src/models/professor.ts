@@ -22,7 +22,7 @@ export class BasicInfo {
         this.tenure = options.tenure;
     }
     toString(): string{
-        return this.name + this.department
+        return (this.name + this.department).replace("/","")
     }
 }
 
