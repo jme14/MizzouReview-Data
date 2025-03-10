@@ -27,13 +27,13 @@ import { getCourses } from './mucourses';
 import { mucoursesData } from './mucourses';
 import { getAllProfessors } from './database';
 import { initializeProfessor, updateProfessor } from './database';
-
+import { readWebsite } from './rmp';
 const firebaseConfig = {
     credential: cert(require('../keys/admin.json')),
 };
 
-
-mainWithDatabase()
+readWebsite()
+// mainWithDatabase()
 // program flow including the database, updating records on matches 
 async function mainWithDatabase(){
 
