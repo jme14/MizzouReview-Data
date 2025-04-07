@@ -1,7 +1,8 @@
 
 import {describe, expect, test} from "vitest"
 import {getArticleContentByName} from "../src/wikipedia"
-import { Name } from "../src/models/name"
+import { Name } from "mizzoureview-reading"
+
 describe("Checking api call works", () => {
     test("Does it return something interesting for someone that has a wikipedia article", async () => {
         const jeff = new Name("Jeffrey", "Uhlmann")

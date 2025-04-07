@@ -1,6 +1,6 @@
 import {describe, expect, test} from "vitest"
 import {mucoursesData, getCourses, getCoursesByProfessor} from "../src/mucourses"
-import { Name } from "../src/models/name"
+import { Name } from "mizzoureview-reading"
 
 describe("API access", () => {
     test("getCourses defined", async ()=> {

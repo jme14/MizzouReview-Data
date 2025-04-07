@@ -1,6 +1,6 @@
 // this file is for interacting with the mucourses api
 import axios from 'axios';
-import { Name } from './models/name';
+import { Name } from 'mizzoureview-reading'
 export type mucoursesData = {
     dept: string;
     title: string;

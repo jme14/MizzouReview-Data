@@ -1,7 +1,7 @@
 import {expect, test} from "vitest"
 import { Firestore } from "firebase-admin/firestore";
 import { writeProfessor } from "../src/database";
-import {Professor} from "../src/models/professor"
+import {Professor} from "mizzoureview-reading"
 
 test("writeProfessor", ()=> {
     const badDB = new Firestore()

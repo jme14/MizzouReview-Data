@@ -1,8 +1,7 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
-import { Name } from './models/name';
-import { BasicInfo } from './models/professor';
+import { Name, BasicInfo } from 'mizzoureview-reading'
 
 export async function fetchCatalogPage(): Promise<string> {
     try {

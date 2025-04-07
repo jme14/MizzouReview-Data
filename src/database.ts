@@ -9,92 +9,19 @@ import {
 } from 'firebase-admin/firestore';
 
 import {
-    ObjectiveMetrics,
-    SubjectiveMetrics,
-    BasicInfo,
-    Professor,
-    AIPromptAnswers,
-} from './models/professor';
+    Professor, Name
+} from "mizzoureview-reading"
 
+import {
+   getAllProfessors,
+   getProfessorFromID,
+   getProfessorsFromDepartment 
+} from "mizzoureview-reading"
 type Result<T> = {
     success: boolean;
     message: string;
     data?: T;
 };
-
-export async function getAllProfessors(
-    db: Firestore
-): Promise<Professor[]> {
-
-    const docRef = db.collection('professors')
-    const allDocs = await docRef.get()
-    const allProfessors: Professor[] = []
-
-    allDocs.forEach((doc) =>{
-        const data = doc.data()
-        if (!data.professorId){
-            return
-        }
-        console.log(doc.data())
-        const prof = Professor.initFromObject(doc.data())
-        if (prof.basicInfo !== undefined){
-            allProfessors.push(prof) 
-        }
-    })
-
-    return allProfessors
-}
-/**
- *
- * @param {Firestore} db
- * @param {string} professorId
- * @returns  {Promise<Professor | null>}
- */
-export async function getProfessorFromID(
-    db: Firestore,
-    professorId: string,
-): Promise<Professor | null> {
-    const docRef = db.collection('professors').doc(professorId);
-    const docSnapshot = await docRef.get();
-
-    if (!docSnapshot.exists){
-        return null
-    }
-    const docData = docSnapshot.data()
-    if (!docData){
-        return null
-    }
-    else if (!docData.professorId) {
-        return null
-    }
-    else {
-        return Professor.initFromObject(docData)
-    }
-}
-
-/**
- *
- * @param {Firestore} db
- * @param {string} department
- * @returns {Promise<Professor[]>}
- */
-export async function getProfessorsFromDepartment(
-    db: Firestore,
-    department: string,
-): Promise<Professor[]> {
-    // find all professors with the same dept as that passed
-    const queryResult = await db
-        .collection('professors')
-        .where('basicInfo.department', '==', department)
-        .get();
-
-    // make a new professor object for all results
-    const professors: Professor[] = [];
-    queryResult.forEach((doc) => {
-        professors.push(Professor.initFromObject(doc.data()));
-    });
-    return professors;
-}
 
 // enable overwrite if you expect that the professor already exists in the database.
 /**

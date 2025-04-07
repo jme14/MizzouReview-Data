@@ -1,7 +1,7 @@
 
 import {describe, expect, test} from "vitest"
-import { Name } from "../src/models/name"
-import { BasicInfo } from "../src/models/professor"
+import { Name } from "mizzoureview-reading"
+import { BasicInfo } from "mizzoureview-reading"
 import { onProfessorBasicInfo} from "../src/main"
 import { getCourses } from "../src/mucourses"
 describe("onProfessorName", async () => {

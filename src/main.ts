@@ -21,11 +21,12 @@ import {
     Professor,
     SubjectiveMetrics,
     AIPromptAnswers,
-} from './models/professor';
-import { Name } from './models/name';
+    Name,
+    getAllProfessors
+} from 'mizzoureview-reading'
+
 import { getCourses } from './mucourses';
 import { mucoursesData } from './mucourses';
-import { getAllProfessors } from './database';
 import { initializeProfessor, updateProfessor } from './database';
 import { readWebsite } from './rmp';
 const firebaseConfig = {
