@@ -1,5 +1,6 @@
 import { Browser, chromium, Page, Locator } from 'playwright';
 import { OperationCanceledException } from 'typescript';
+import { Name } from 'mizzoureview-reading';
 
 export async function sleep(seconds: number) {
     await new Promise((resolve) => setTimeout(resolve, seconds * 1000));
@@ -17,7 +18,7 @@ export async function getPage() {
     return { browser, page };
 }
 // fill the Professor search item
-export async function fillProfName(browser: Browser, page: Page, name: string) {
+export async function fillProfName(browser: Browser, page: Page, name: Name) {
     const inputElements = page
         .getByPlaceholder('Professor name')
         .filter({ visible: true });
@@ -25,7 +26,7 @@ export async function fillProfName(browser: Browser, page: Page, name: string) {
     if (totalInputs.length > 1) {
         throw new OperationCanceledException();
     }
-    await inputElements.fill(name);
+    await inputElements.fill(name.toString());
     return inputElements;
 }
 // fill the school search item
@@ -58,60 +59,48 @@ export async function navigateToProfListPage(
 export async function navigateToFirstProfPage(
     browser: Browser,
     page: Page,
-    name: string,
+    name: Name,
 ) {
-    const nameregex = new RegExp(name.replace(/\s+/g, '\\s+'));
+    const nameregex = new RegExp(name.toString().replace(/\s+/g, '\\s+'));
 
+    console.log(nameregex) 
     // this provides two elements 
+
+    await page.waitForLoadState('load')
     const allNameElements = await page
         .getByText(nameregex)
         .all();
 
     const initialURL = page.url()
+    console.log(allNameElements.length)
     for (let i = 0 ; i < allNameElements.length ; i++){
+        console.log(i)
         await allNameElements.at(i)?.click()
+        await page.waitForLoadState('load')
         const finalURL = page.url()
         if (initialURL != finalURL){
+            console.log(`${initialURL} vs ${finalURL}`)
             return true
         }
     }
+    console.log("FALSE!")
     return false
 }
-export async function readWebsite() {
-    const { browser, page } = await getPage();
 
-    const profInputElem = await fillProfName(browser, page, 'Jim Ries');
-    const schoolInputElem = await fillSchool(browser, page);
-    await schoolInputElem.focus();
-    await page.keyboard.press('Enter');
+export async function loadAllRatings(browser: Browser, page: Page){
+    await page.waitForLoadState('load')
+    let counter = 0
+    while (await page.getByText("Load More Ratings").isVisible()){
+        console.log(`This is run ${counter}`)
+        counter = counter+1
+        let button = page.getByText("Load More Ratings").filter({visible:true})
+        console.log("Clicking the button!")
+        console.log(page.getByText("Load More Ratings").isVisible())
 
-    /* 
-    console.log("Filled in data!")
-    await page.keyboard.press("Enter")
-    console.log("Pressed enter!")
-    const jimThings = page.getByText("Jim Ries")
-    const jimThingsCount = await jimThings.count() 
-    console.log(`jimThingsCount is ${jimThingsCount}`)
-    let realJimThing
-    for ( let i = 0 ; i < jimThingsCount ; i++){
-        const currentJim = jimThings.nth(i)
-        const jimText = await currentJim.textContent()
-        if (!jimText){
-            continue
-        }
-        if (jimText.includes("\"")){
-            realJimThing = currentJim
-            break
-        }
+        await button.focus()
+        await button.click()
+        await page.waitForLoadState('load')
     }
-    if (realJimThing === undefined){
-        return false
-    }
-    await realJimThing.click()
-    
-    // console.log(page)
-    await browser.close()
-    console.log("We are finished!")
+
     return true
-    */
 }
