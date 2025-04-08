@@ -1,12 +1,16 @@
-import {describe, expect, test} from "vitest"
-import {readWebsite} from "../src/rmp"
+import {beforeAll, describe, expect, test} from "vitest"
+import {getPage, fillProfName} from "../src/rmp"
+import {Page} from "playwright"
 
 
 describe("reading a website!", async () => {
-    test("find rmp", async ()=> {
-        // const data = await readWebsite()
-        const data = true 
-        console.log(data)
-        expect(data).toBeTruthy()
+    let page: Page
+
+    beforeAll(async () =>{
+        page = await getPage()
+    })
+
+    test("get page", async ()=> {
+        expect(page).toBeTruthy()
     })
 })
