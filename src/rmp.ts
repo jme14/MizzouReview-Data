@@ -1,6 +1,7 @@
-import {chromium, Page} from 'playwright'
+import {Browser, chromium, Page} from 'playwright'
+import { OperationCanceledException } from 'typescript'
 
-async function sleep(seconds: number){
+export async function sleep(seconds: number){
     await new Promise(resolve => setTimeout(resolve, seconds*1000))
 }
 // go to RMP
@@ -11,57 +12,37 @@ export async function getPage(){
     console.log("Awaiting page load")
     // await page.goto("https://www.ratemyprofessors.com/search/professors/", {waitUntil:"load", timeout:0})
     await page.goto("https://www.ratemyprofessors.com/search/professors/", {waitUntil: "domcontentloaded"})
-    return page
+    return {browser, page}
 }
 // fill the Professor search item 
-export async function fillProfName(page: Page){
-    const inputElements = page.getByPlaceholder("Professor name")
-    console.log(inputElements.allTextContents())
-    return true
+export async function fillProfName(browser: Browser, page: Page, name: string){
+    const inputElements = page.getByPlaceholder("Professor name").filter({visible: true})
+    const totalInputs = await inputElements.all()
+    if (totalInputs.length > 1){
+        throw new OperationCanceledException()
+    }
+    await inputElements.fill(name)
+    return inputElements
+}
+// fill the school search item 
+export async function fillSchool(browser: Browser, page: Page){
+    const inputElements = page.getByPlaceholder("Your school").filter({visible: true})
+    const totalInputs = await inputElements.all()
+    if (totalInputs.length > 1){
+        throw new OperationCanceledException()
+    }
+    await inputElements.fill("University of Missouri - Columbia")
+    return inputElements
 }
 export async function readWebsite(){
 
-    const page = await getPage() 
+    const {browser, page} = await getPage() 
 
-    /*
-    const elementToClose = page.getByText("Close")
-    console.log(elementToClose)
-    await page.getByText("Close").click()
-    */
-    
-    const inputLocator = page.locator("input")
-    const inputCount = await inputLocator.count() 
-    console.log(`There are ${inputCount} inputs`)
-    await sleep(2)
+    const profInputElem = await fillProfName(browser, page, "Jim Ries")
+    const schoolInputElem = await fillSchool(browser, page)
 
     /* 
-    console.log("Waiting starts...")
-    await new Promise(resolve => setTimeout(resolve, 5000))
-    console.log("Waiting complete!")
-    */ 
-
-    let professorInput 
-    let schoolElement
-    for (let i = 0 ; i  < inputCount ; i++){
-        const inputElement = inputLocator.nth(i)
-        const placeholderText = await inputElement.getAttribute("placeholder")
-        console.log(`Looking at input element ${i}, with ${placeholderText}`)
-        await sleep(2)
-        if (placeholderText === "Professor name"){
-            professorInput = inputElement
-            await inputElement.fill("Jim Ries")
-            await inputElement.focus()
-        }
-        if (placeholderText === "Your School"){
-            await inputElement.fill("University of Missouri - Columbia")
-        }
-    }
-    if (professorInput == undefined){
-        console.log("ERROR: professorInput never set")
-        return false
-    }
     console.log("Filled in data!")
-    await sleep(2)
     await page.keyboard.press("Enter")
     console.log("Pressed enter!")
     const jimThings = page.getByText("Jim Ries")
@@ -88,4 +69,5 @@ export async function readWebsite(){
     await browser.close()
     console.log("We are finished!")
     return true
+    */
 }
