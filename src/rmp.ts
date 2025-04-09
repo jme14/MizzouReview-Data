@@ -294,3 +294,43 @@ export function getSubjectiveMetrics (metrics: RatingData[]): SubjectiveMetrics{
     const polarization = getPolarization(metrics)
     return new SubjectiveMetrics({quality: quality, difficulty:difficulty, gradingIntensity:gradingIntensity, attendance: attendance, textbook: textbook, polarizing: polarization})
 }
+
+export async function getSubjectiveMetricsFromProfessor(browser: Browser, page: Page, name: Name): Promise<SubjectiveMetrics | null>{
+
+        const profInputElem = await fillProfName(browser, page, name);
+        if (!profInputElem){
+            return null
+        }
+
+        const schoolInputElem = await fillSchool(browser, page);
+        if (!schoolInputElem){
+            return null
+        }
+
+        const profPageListSuccess = await navigateToProfListPage(
+            browser,
+            page,
+            profInputElem,
+        )
+        if (!profPageListSuccess){
+            return null
+        }
+
+        const firstProfPageSuccess = await navigateToFirstProfPage(
+            browser,
+            page,
+            name,
+        );
+        if (!firstProfPageSuccess){
+            return null
+        }
+
+        const loadAllRatingsSuccessful = await loadAllRatings(browser, page);
+        if (!loadAllRatingsSuccessful){
+            return null
+        }
+
+        const metrics = await getAllComments(browser, page);
+        const subjectiveMetrics = getSubjectiveMetrics(metrics);
+        return subjectiveMetrics
+}

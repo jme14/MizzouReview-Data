@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'vitest';
+import { beforeAll, afterAll, describe, expect, test } from 'vitest';
 import {
     getPage,
     fillProfName,
@@ -16,14 +16,15 @@ import {
     getTextbook,
     getAttendance,
     getGradingIntensity,
-    getPolarization
+    getPolarization,
+    getSubjectiveMetricsFromProfessor
 } from '../src/rmp';
 import { Browser, Page, Locator} from 'playwright';
 import { Name } from 'mizzoureview-reading';
 
-describe('reading a website!', () => {
-    const testName = new Name("Michael", "Jurczyk")
-    const expectedReviews = 42
+describe('for a single professor, each component tested', () => {
+    const testName = new Name("Jim", "Ries")
+    const expectedReviews = 106 
     let browser: Browser;
     let page: Page;
     let profInputElem: Locator
@@ -33,6 +34,11 @@ describe('reading a website!', () => {
     beforeAll(async () => {
         ({ browser, page } = await getPage());
     });
+
+    afterAll( async () => {
+        await browser.close()
+        console.log("Closed this browser!")
+    })
 
     test('page truthy', async () => {
         expect(page).toBeTruthy();
@@ -109,3 +115,20 @@ describe('reading a website!', () => {
         console.log(subjectiveMetrics)
     })
 });
+describe('for a single professor, main tested', () => {
+    let browser: Browser;
+    let page: Page;
+
+    beforeAll(async () => {
+        ({ browser, page } = await getPage());
+    });
+
+    afterAll(async () => {
+        await browser.close()
+    })
+    test('testing main', async() =>{
+        const subjectiveMetrics = getSubjectiveMetricsFromProfessor(browser, page, new Name("Gary", "McKenzie"))
+        expect(subjectiveMetrics).toBeTruthy()
+        console.log(subjectiveMetrics)
+    })
+})
