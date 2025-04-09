@@ -6,7 +6,9 @@ import {
     sleep,
     navigateToProfListPage,
     navigateToFirstProfPage,
-    loadAllRatings
+    loadAllRatings,
+    getAllComments,
+    getExpectedRatings
 } from '../src/rmp';
 import { Browser, Page, Locator} from 'playwright';
 import { Name } from 'mizzoureview-reading';
@@ -16,7 +18,8 @@ describe('reading a website!', () => {
     let page: Page;
     let profInputElem: Locator
     let schoolInputElem: Locator
-    const testName = new Name("Dale", "Musser")
+    const testName = new Name("Michael", "Jurczyk")
+    const expectedReviews = 42
 
     beforeAll(async () => {
         ({ browser, page } = await getPage());
@@ -41,16 +44,31 @@ describe('reading a website!', () => {
         expect(result).toBeTruthy()
     });
 
-    test('getting to jimr page', async () => {
+    test('getting to prof page page', async () => {
         const name = new Name("Jim", "Ries")
         const jimrCount = await navigateToFirstProfPage(browser, page, testName)
         expect(jimrCount).toBeTruthy()
     })
 
-    test('trying to load all ratings', async() =>{
+    test('getting expected rating count', async() => {
+        const result = await getExpectedRatings(browser,page)
+
+        // this is a bad test lol 
+        expect(result).toBe(expectedReviews)
+
+    })
+    test('trying to manipulate document such that all reviews are available', async() =>{
         const result = await loadAllRatings(browser, page)
         expect(result).toBeTruthy()
         const buttons = await page.getByText("Load More Ratings").all()
         expect(buttons.length).toBe(0)
+    })
+
+    test('trying to get all review objects', async ()=>{
+        const result = await getAllComments(browser, page)
+        expect(result).toBeTruthy()
+        expect(result.length).toBeGreaterThan(0)
+        expect(result.length).toBe(expectedReviews)
+        result.forEach((res)=> console.log(res))
     })
 });
