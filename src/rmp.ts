@@ -208,5 +208,20 @@ export function getQuality(metrics: RatingData[]){
         return 0
     }
 }
+export function getRatingTagMap(metrics: RatingData[]){
+    // map of tags 
+    let tags = new Map()
+    for ( let i = 0 ; i < metrics.length ; i++){
+        const metricTags = metrics[i].tags
+        metricTags.forEach((tag) => {
+            if (!tags.get(tag)){
+                tags.set(tag,1)
+            } else {
+                tags.set(tag, tags.get(tag)+1)
+            }
+        })
+    }
+
+}
 export function getMetrics(metrics: RatingData[]){
 }
