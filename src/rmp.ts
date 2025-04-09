@@ -9,11 +9,14 @@ export class RatingData{
     tags: string[];
     upvotes: number;
     downvotes: number;
+    attendance?: boolean;
+    textbook?: boolean;
+
     constructor(textArray: string[]){
         this.quality = parseFloat(textArray[1])
         this.difficulty = parseFloat(textArray[3])
         // imperfect solution
-        let commentIndex = textArray.findIndex((string) => string.includes("Textbook:"))+1
+        let commentIndex = textArray.findIndex((string) => string.includes("Textbook: "))+1
 
         // thank you stackoverflow.com/questions/6521245/finding-longest-string-in-array
         if (commentIndex == 0) {
@@ -27,6 +30,17 @@ export class RatingData{
         this.tags = this.tags.filter((str) => !str.match(/\d+/g) )
         this.upvotes = parseInt(textArray[textArray.length-2])
         this.downvotes = parseInt(textArray[textArray.length-1])
+        const textbookIndex = textArray.findIndex((string) => string.includes("Textbook: "))
+        if (textbookIndex != -1){
+            // this is god awful
+            this.textbook = (textArray[textbookIndex].split(" ")[1] == "Yes") ? true : false
+        }
+        const attendanceIndex =textArray.findIndex((string) => string.includes("Attendance: ")) 
+        if (attendanceIndex != -1){
+            // this is too 
+            this.attendance = (textArray[attendanceIndex].split(" ")[1] == "Mandatory") ? true : false
+        }
+
     }
 }
 export async function sleep(seconds: number) {
@@ -243,6 +257,57 @@ export function getGradingIntensity(metrics: RatingData[]){
         return Math.ceil(percentRatingsContainToughGrader*10)
     }
 
+}
+export function getAttendance(metrics: RatingData[]){
+    let attendanceWriterCount = metrics.length
+    let attendanceRequired = 0
+    metrics.forEach((metric)=>{
+        if (metric.attendance == undefined){
+            attendanceWriterCount--
+        }
+        else if (metric.attendance){
+            attendanceRequired++
+        } 
+    })
+
+    const attendanceRequiredPercentage = attendanceRequired/attendanceWriterCount
+    // 0-20% -> 1 
+    // 81-100% -> 5 
+    return Math.ceil(attendanceRequiredPercentage*5)
+}
+export function getTextbook(metrics: RatingData[]){
+    let textbookWriterCount = metrics.length
+    let textbookRequired = 0
+    metrics.forEach((metric)=>{
+        if (metric.textbook == undefined){
+            textbookWriterCount--
+        }
+        else if (metric.attendance){
+            textbookRequired++
+        } 
+    })
+
+    const textbookRequiredPercentage = textbookRequired/textbookWriterCount
+    // 0-20% -> 1 
+    // 81-100% -> 5 
+    return Math.ceil(textbookRequiredPercentage*5)
+}
+export function getPolarization(metrics: RatingData[]){
+    const numbers = metrics.map(metric => metric.quality)
+
+    // this is straight from chatgpt sorry yall
+    const mean = numbers.reduce((a, b) => a + b, 0) / numbers.length;
+    const variance =
+        numbers.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+        numbers.length;
+    // this is a range between 0 and 2, so...
+    const standarddeviation = Math.sqrt(variance);
+
+    // 0-0.39 -> 1 
+    // 0.4-0.79 -> 2
+    // 1.6-2 -> 5
+    // now stddev a 1-5 scale, may need adjusting 
+    return Math.ceil(standarddeviation*2.5)
 }
 export function getMetrics(metrics: RatingData[]){
 }
