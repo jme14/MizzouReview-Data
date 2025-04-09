@@ -169,3 +169,44 @@ export async function getAllComments(browser: Browser, page: Page): Promise<Rati
 
     return allResponses;
 }
+
+export function getDifficulty(metrics: RatingData[]){
+    let totalDifficulty = 0
+    let totalWeight = 0
+    for ( let i = 0 ; i < metrics.length ; i++){
+        const unweightedDifficulty = metrics[i].difficulty
+        if (metrics[i].downvotes > metrics[i].upvotes){
+            totalDifficulty = totalDifficulty + unweightedDifficulty/2
+            totalWeight = totalWeight + 0.5
+        } else {
+            totalDifficulty = totalDifficulty + unweightedDifficulty
+            totalWeight = 1
+        }
+    }
+    try{
+        return totalDifficulty/totalWeight
+    } catch(e){
+        return 0
+    }
+}
+export function getQuality(metrics: RatingData[]){
+    let totalDifficulty = 0
+    let totalWeight = 0
+    for ( let i = 0 ; i < metrics.length ; i++){
+        const unweightedDifficulty = metrics[i].quality
+        if (metrics[i].downvotes > metrics[i].upvotes){
+            totalDifficulty = totalDifficulty + unweightedDifficulty/2
+            totalWeight = totalWeight + 0.5
+        } else {
+            totalDifficulty = totalDifficulty + unweightedDifficulty
+            totalWeight = 1
+        }
+    }
+    try{
+        return totalDifficulty/totalWeight
+    } catch(e){
+        return 0
+    }
+}
+export function getMetrics(metrics: RatingData[]){
+}
