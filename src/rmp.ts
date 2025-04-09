@@ -208,7 +208,7 @@ export function getQuality(metrics: RatingData[]){
         return 0
     }
 }
-export function getRatingTagMap(metrics: RatingData[]){
+export function getRatingTagMap(metrics: RatingData[]): Map<string, number>{
     // map of tags 
     let tags = new Map()
     for ( let i = 0 ; i < metrics.length ; i++){
@@ -220,6 +220,27 @@ export function getRatingTagMap(metrics: RatingData[]){
                 tags.set(tag, tags.get(tag)+1)
             }
         })
+    }
+    return tags
+}
+export function getGradingIntensity(metrics: RatingData[]){
+    const tagMap = getRatingTagMap(metrics)
+    const toughGraderCount = tagMap.get("TOUGH GRADER")
+    const ratingCount = metrics.length
+    const percentRatingsContainToughGrader = (toughGraderCount || 0)/ratingCount
+
+    // this needs to be discussed/observed: need to figure out what percentage warrents the tough grader metric 
+    // for now: 
+    // 0-9%: 1/5 (20%)
+    // 10-19%: 2/5 (40%)
+    // ...
+    // 40-100%: 5/5
+    if (percentRatingsContainToughGrader >= 0.4){
+        return 5
+    } else if (percentRatingsContainToughGrader == 0){
+        return 1
+    } else{
+        return Math.ceil(percentRatingsContainToughGrader*10)
     }
 
 }
