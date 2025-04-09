@@ -1,6 +1,6 @@
 import { Browser, chromium, Page, Locator } from 'playwright';
 import { OperationCanceledException } from 'typescript';
-import { Name } from 'mizzoureview-reading';
+import { Name, SubjectiveMetrics } from 'mizzoureview-reading';
 
 export class RatingData{
     quality: number;
@@ -110,14 +110,11 @@ export async function navigateToFirstProfPage(
         .all();
 
     const initialURL = page.url()
-    console.log(allNameElements.length)
     for (let i = 0 ; i < allNameElements.length ; i++){
-        console.log(i)
         await allNameElements.at(i)?.click()
         await page.waitForLoadState('load')
         const finalURL = page.url()
         if (initialURL != finalURL){
-            console.log(`${initialURL} vs ${finalURL}`)
             return true
         }
     }
@@ -176,7 +173,6 @@ export async function getAllComments(browser: Browser, page: Page): Promise<Rati
             continue
         }
         if (textArray[0] == 'QUALITY'){
-            console.log(textArray)
             allResponses.push(new RatingData(textArray))
         }
     }
@@ -194,11 +190,11 @@ export function getDifficulty(metrics: RatingData[]){
             totalWeight = totalWeight + 0.5
         } else {
             totalDifficulty = totalDifficulty + unweightedDifficulty
-            totalWeight = 1
+            totalWeight = totalWeight + 1
         }
     }
     try{
-        return totalDifficulty/totalWeight
+        return Math.ceil((totalDifficulty/totalWeight)*2)
     } catch(e){
         return 0
     }
@@ -213,11 +209,13 @@ export function getQuality(metrics: RatingData[]){
             totalWeight = totalWeight + 0.5
         } else {
             totalDifficulty = totalDifficulty + unweightedDifficulty
-            totalWeight = 1
+            totalWeight = totalWeight + 1
         }
     }
     try{
-        return totalDifficulty/totalWeight
+        console.log(totalDifficulty)
+        console.log(totalWeight)
+        return Math.ceil((totalDifficulty/totalWeight)*2)
     } catch(e){
         return 0
     }
@@ -243,19 +241,7 @@ export function getGradingIntensity(metrics: RatingData[]){
     const ratingCount = metrics.length
     const percentRatingsContainToughGrader = (toughGraderCount || 0)/ratingCount
 
-    // this needs to be discussed/observed: need to figure out what percentage warrents the tough grader metric 
-    // for now: 
-    // 0-9%: 1/5 (20%)
-    // 10-19%: 2/5 (40%)
-    // ...
-    // 40-100%: 5/5
-    if (percentRatingsContainToughGrader >= 0.4){
-        return 5
-    } else if (percentRatingsContainToughGrader == 0){
-        return 1
-    } else{
-        return Math.ceil(percentRatingsContainToughGrader*10)
-    }
+    return Math.ceil(percentRatingsContainToughGrader*10)
 
 }
 export function getAttendance(metrics: RatingData[]){
@@ -271,9 +257,7 @@ export function getAttendance(metrics: RatingData[]){
     })
 
     const attendanceRequiredPercentage = attendanceRequired/attendanceWriterCount
-    // 0-20% -> 1 
-    // 81-100% -> 5 
-    return Math.ceil(attendanceRequiredPercentage*5)
+    return Math.ceil(attendanceRequiredPercentage*10)
 }
 export function getTextbook(metrics: RatingData[]){
     let textbookWriterCount = metrics.length
@@ -288,9 +272,7 @@ export function getTextbook(metrics: RatingData[]){
     })
 
     const textbookRequiredPercentage = textbookRequired/textbookWriterCount
-    // 0-20% -> 1 
-    // 81-100% -> 5 
-    return Math.ceil(textbookRequiredPercentage*5)
+    return Math.ceil(textbookRequiredPercentage*10)
 }
 export function getPolarization(metrics: RatingData[]){
     const numbers = metrics.map(metric => metric.quality)
@@ -303,11 +285,14 @@ export function getPolarization(metrics: RatingData[]){
     // this is a range between 0 and 2, so...
     const standarddeviation = Math.sqrt(variance);
 
-    // 0-0.39 -> 1 
-    // 0.4-0.79 -> 2
-    // 1.6-2 -> 5
-    // now stddev a 1-5 scale, may need adjusting 
-    return Math.ceil(standarddeviation*2.5)
+    return Math.ceil(standarddeviation*5)
 }
-export function getMetrics(metrics: RatingData[]){
+export function getSubjectiveMetrics (metrics: RatingData[]): SubjectiveMetrics{
+    const quality = getQuality(metrics)
+    const difficulty = getDifficulty(metrics)
+    const gradingIntensity = getGradingIntensity(metrics) 
+    const attendance = getAttendance(metrics)
+    const textbook = getTextbook(metrics)
+    const polarization = getPolarization(metrics)
+    return new SubjectiveMetrics({quality: quality, difficulty:difficulty, gradingIntensity:gradingIntensity, attendance: attendance, textbook: textbook, polarizing: polarization})
 }

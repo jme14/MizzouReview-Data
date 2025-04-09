@@ -8,18 +8,27 @@ import {
     navigateToFirstProfPage,
     loadAllRatings,
     getAllComments,
-    getExpectedRatings
+    getExpectedRatings,
+    RatingData,
+    getSubjectiveMetrics,
+    getQuality,
+    getDifficulty,
+    getTextbook,
+    getAttendance,
+    getGradingIntensity,
+    getPolarization
 } from '../src/rmp';
 import { Browser, Page, Locator} from 'playwright';
 import { Name } from 'mizzoureview-reading';
 
 describe('reading a website!', () => {
+    const testName = new Name("Michael", "Jurczyk")
+    const expectedReviews = 42
     let browser: Browser;
     let page: Page;
     let profInputElem: Locator
     let schoolInputElem: Locator
-    const testName = new Name("Michael", "Jurczyk")
-    const expectedReviews = 42
+    let ratingData: RatingData[]
 
     beforeAll(async () => {
         ({ browser, page } = await getPage());
@@ -69,6 +78,34 @@ describe('reading a website!', () => {
         expect(result).toBeTruthy()
         expect(result.length).toBeGreaterThan(0)
         expect(result.length).toBe(expectedReviews)
-        result.forEach((res)=> console.log(res))
+        ratingData = result
+    })
+
+    test('unit tests for each metric, followed by getting subjective metric', async() => {
+
+        const metrics = ratingData
+
+        const quality = getQuality(metrics)
+        expect(quality).toBeGreaterThanOrEqual(0)
+        expect(quality).toBeLessThanOrEqual(10)
+        const difficulty = getDifficulty(metrics)
+        expect(difficulty).toBeGreaterThanOrEqual(0)
+        expect(difficulty).toBeLessThanOrEqual(10)
+        const gradingIntensity = getGradingIntensity(metrics) 
+        expect(gradingIntensity).toBeGreaterThanOrEqual(0)
+        expect(gradingIntensity).toBeLessThanOrEqual(10)
+        const attendance = getAttendance(metrics)
+        expect(attendance).toBeGreaterThanOrEqual(0)
+        expect(attendance).toBeLessThanOrEqual(10)
+        const textbook = getTextbook(metrics)
+        expect(textbook).toBeGreaterThanOrEqual(0)
+        expect(textbook).toBeLessThanOrEqual(10)
+        const polarization = getPolarization(metrics)
+        expect(polarization).toBeGreaterThanOrEqual(0)
+        expect(polarization).toBeLessThanOrEqual(10)
+
+        const subjectiveMetrics = getSubjectiveMetrics(ratingData)
+        expect(subjectiveMetrics).toBeTruthy
+        console.log(subjectiveMetrics)
     })
 });
