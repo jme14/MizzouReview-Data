@@ -213,8 +213,6 @@ export function getQuality(metrics: RatingData[]){
         }
     }
     try{
-        console.log(totalDifficulty)
-        console.log(totalWeight)
         return Math.ceil((totalDifficulty/totalWeight)*2)
     } catch(e){
         return 0
