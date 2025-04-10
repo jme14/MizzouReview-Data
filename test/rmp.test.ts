@@ -79,6 +79,7 @@ describe('for a single professor, each component tested', () => {
         expect(buttons.length).toBe(0)
     })
 
+    //this test makes sure that the total amount of reviews listed at the top of the page match the amount of review objects gathered
     test('trying to get all review objects', async ()=>{
         const result = await getAllComments(browser, page)
         expect(result).toBeTruthy()
