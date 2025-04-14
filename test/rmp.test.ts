@@ -128,7 +128,7 @@ describe('for a single professor, main tested', () => {
         await browser.close()
     })
     test('testing main', async() =>{
-        const subjectiveMetrics = getSubjectiveMetricsFromProfessor(browser, page, new Name("Gary", "McKenzie"))
+        const subjectiveMetrics = await getSubjectiveMetricsFromProfessor(browser, page, new Name("Gary", "McKenzie"))
         expect(subjectiveMetrics).toBeTruthy()
         console.log(subjectiveMetrics)
     })
