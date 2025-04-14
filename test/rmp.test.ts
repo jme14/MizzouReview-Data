@@ -17,12 +17,13 @@ import {
     getAttendance,
     getGradingIntensity,
     getPolarization,
-    getSubjectiveMetricsFromProfessor
+    getSubjectiveMetricsFromProfessor,
+    goToRMPStart
 } from '../src/rmp';
 import { Browser, Page, Locator} from 'playwright';
 import { Name } from 'mizzoureview-reading';
 
-describe('for a single professor, each component tested', () => {
+describe('parts', () => {
     const testName = new Name("Jim", "Ries")
     const expectedReviews = 106 
     let browser: Browser;
@@ -43,7 +44,10 @@ describe('for a single professor, each component tested', () => {
     test('page truthy', async () => {
         expect(page).toBeTruthy();
     });
-
+    test('going to proper page', async() =>{
+        await goToRMPStart(browser, page)
+        expect(page.url()).toBe('https://www.ratemyprofessors.com/search/professors/')
+    })
     test('filling prof input', async () => {
         profInputElem = await fillProfName(browser, page, testName);
         expect(profInputElem).toBeTruthy();
@@ -116,7 +120,7 @@ describe('for a single professor, each component tested', () => {
         console.log(subjectiveMetrics)
     })
 });
-describe('for a single professor, main tested', () => {
+describe('one', () => {
     let browser: Browser;
     let page: Page;
 
@@ -132,4 +136,61 @@ describe('for a single professor, main tested', () => {
         expect(subjectiveMetrics).toBeTruthy()
         console.log(subjectiveMetrics)
     })
+})
+
+describe("many", ()=>{
+    let browser: Browser;
+    let page: Page;
+    const namesArray = [
+        new Name("Gary", "McKenzie"),
+        new Name("Troy", "Hall"),
+        new Name("Jim", "Ries"),
+        new Name("Michael", "Jurczyk"),
+        new Name("Fang", "Wang"),
+        new Name("Denice", "Adkins"),
+        new Name("James", "Crozier"),
+        new Name("Brian", "Ganley"),
+    ]
+    const profMap = new Map()
+
+    beforeAll(async () => {
+        ({ browser, page } = await getPage());
+        console.log("Browser initialized")
+    });
+
+    afterAll(async () => {
+        console.log(profMap)
+        await browser.close()
+    })
+    test('prof1', async() =>{
+        const subjectiveMetrics = await getSubjectiveMetricsFromProfessor(browser, page, namesArray[0]) 
+        expect(subjectiveMetrics).toBeTruthy()
+        console.log(subjectiveMetrics)
+        profMap.set(namesArray[0], subjectiveMetrics)
+    })
+    test('prof2', async() =>{
+        const subjectiveMetrics = await getSubjectiveMetricsFromProfessor(browser, page, namesArray[1]) 
+        expect(subjectiveMetrics).toBeTruthy()
+        console.log(subjectiveMetrics)
+        profMap.set(namesArray[1], subjectiveMetrics)
+    })
+    test('prof3 thru prof4', async() =>{
+        const subjectiveMetrics3 = await getSubjectiveMetricsFromProfessor(browser, page, namesArray[2]) 
+        expect(subjectiveMetrics3).toBeTruthy()
+        console.log(subjectiveMetrics3)
+        profMap.set(namesArray[2], subjectiveMetrics3)
+        const subjectiveMetrics4 = await getSubjectiveMetricsFromProfessor(browser, page, namesArray[3]) 
+        expect(subjectiveMetrics4).toBeTruthy()
+        console.log(subjectiveMetrics4)
+        profMap.set(namesArray[3], subjectiveMetrics4)
+    })
+    test('the rest', async()=>{
+        for (let i = 4 ; i < namesArray.length ; i++){
+            const subjectiveMetrics = await getSubjectiveMetricsFromProfessor(browser, page, namesArray[i]) 
+            expect(subjectiveMetrics).toBeTruthy()
+            console.log(subjectiveMetrics)
+            profMap.set(namesArray[i], subjectiveMetrics)
+        }
+    })
+
 })
