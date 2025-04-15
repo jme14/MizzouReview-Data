@@ -131,9 +131,14 @@ describe('one', () => {
     afterAll(async () => {
         await browser.close()
     })
-    test('testing main', async() =>{
+    test('testing main good', async() =>{
         const subjectiveMetrics = await getSubjectiveMetricsFromProfessor(browser, page, new Name("Gary", "McKenzie"))
         expect(subjectiveMetrics).toBeTruthy()
+        console.log(subjectiveMetrics)
+    })
+    test('testing main bad', async() => {
+        const subjectiveMetrics = await getSubjectiveMetricsFromProfessor(browser, page, new Name("Makayla", "Morton"))
+        expect(subjectiveMetrics).toBeFalsy()
         console.log(subjectiveMetrics)
     })
 })
