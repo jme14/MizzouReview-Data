@@ -364,12 +364,12 @@ export async function getSubjectiveMetricsFromProfessor(browser: Browser, page: 
         await goToRMPStart(browser, page)
         const profInputElem = await fillProfName(browser, page, name);
         if (!profInputElem){
-            new Error("Prof name failed to fill in")
+            throw new Error("Prof name failed to fill in")
         }
 
         const schoolInputElem = await fillSchool(browser, page);
         if (!schoolInputElem){
-            new Error("School name failed to fill in")
+            throw new Error("School name failed to fill in")
         }
 
         const profPageListSuccess = await navigateToProfListPage(
@@ -378,7 +378,7 @@ export async function getSubjectiveMetricsFromProfessor(browser: Browser, page: 
             profInputElem,
         )
         if (!profPageListSuccess){
-            new Error("Prof list page navigation failed ")
+            throw new Error("Prof list page navigation failed ")
         }
 
         const firstProfPageSuccess = await navigateToFirstProfPage(
@@ -387,12 +387,12 @@ export async function getSubjectiveMetricsFromProfessor(browser: Browser, page: 
             name,
         );
         if (!firstProfPageSuccess){
-            new Error("First Prof name failed to be clicked")
+            throw new Error("First Prof name failed to be clicked")
         }
 
         const loadAllRatingsSuccessful = await loadAllRatings(browser, page);
         if (!loadAllRatingsSuccessful){
-            new Error("Ratings failed to load ")
+            throw new Error("Ratings failed to load ")
         }
 
         const metrics = await getAllComments(browser, page);
