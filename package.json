@@ -36,7 +36,7 @@
     "dotenv": "^16.4.7",
     "firebase": "^11.2.0",
     "firebase-admin": "^13.0.2",
-    "mizzoureview-reading": "^1.0.1",
+    "mizzoureview-reading": "^1.1.0",
     "module-alias": "^2.2.3",
     "playwright": "^1.51.0",
     "typescript": "^5.7.3",
