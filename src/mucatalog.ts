@@ -23,7 +23,7 @@ function parseFacultyString(
     // name; title; department; education; school
     // except only department is required
 
-    const facParts = facString.split(';');
+    const facParts = facString.split(';').map(facPart => facPart.trim());
 
     const titlePattern = /\b(instructor|part-time|emeritus|prof|residnt|resrch|spclst|fellow|adjunct|director)\b/i;
     // if it's doctor, we have education
