@@ -387,7 +387,7 @@ export async function getSubjectiveMetricsFromProfessor(browser: Browser, page: 
             name,
         );
         if (!firstProfPageSuccess){
-            throw new Error("First Prof name failed to be clicked")
+            return null
         }
 
         const loadAllRatingsSuccessful = await loadAllRatings(browser, page);
