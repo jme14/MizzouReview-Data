@@ -11,7 +11,7 @@ import {
     DocumentReference,
 } from 'firebase-admin/firestore';
 
-import { getProfessorBasicInfo } from './mucatalog'
+import { getProfessorBasicInfo } from './mucatalog';
 import { getCoursesByProfessor } from './mucourses';
 import { getArticleContentByName } from './wikipedia';
 
@@ -22,20 +22,79 @@ import {
     SubjectiveMetrics,
     AIPromptAnswers,
     Name,
-    getAllProfessors
-} from 'mizzoureview-reading'
+    getAllProfessors,
+} from 'mizzoureview-reading';
 
 import { getCourses } from './mucourses';
 import { mucoursesData } from './mucourses';
 import { initializeProfessor, updateProfessor } from './database';
-import { readWebsite } from './rmp';
+
+import { writeProfessors } from './database';
+
 const firebaseConfig = {
     credential: cert(require('../keys/admin.json')),
 };
 
-readWebsite()
+const TESTING = true
+// below function from chatgpt with minor edits
+function generateProfessorId(
+    basicInfo: BasicInfo,
+    length: number = 20,
+): string {
+    const input = basicInfo.name.toString() + basicInfo.department;
+    // Simple hash function to turn the string into a number seed
+    let seed = 0;
+    for (let i = 0; i < input.length; i++) {
+        seed = (seed * 31 + input.charCodeAt(i)) >>> 0; // ensure unsigned int
+    }
+
+    // Pseudo-random number generator using Mulberry32 (fast and decent)
+    function mulberry32(a: number) {
+        return function () {
+            a |= 0;
+            a = (a + 0x6d2b79f5) | 0;
+            let t = Math.imul(a ^ (a >>> 15), 1 | a);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+    }
+
+    const rand = mulberry32(seed);
+    const chars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        const index = Math.floor(rand() * chars.length);
+        result += chars[index];
+    }
+
+    return result;
+}
+
+export async function updateFaculty() {
+    // getting database information
+    const app = initializeApp(firebaseConfig);
+    const db: Firestore = getFirestore(app);
+
+    // const allDatabaseProfessors = await getAllProfessors(db)
+    let professorBasicInfo = await getProfessorBasicInfo();
+    const professorArray: Professor[] = []
+    professorBasicInfo.forEach((basicInfo) => {
+        const newProf = new Professor(generateProfessorId(basicInfo), { basicInfo: basicInfo });
+        professorArray.push(newProf)
+    });
+
+    // if testing, make this smaller
+    if (TESTING){
+        professorBasicInfo = professorBasicInfo.slice(0,1000)
+    }
+
+    return await writeProfessors(db, professorArray)
+}
+
 // mainWithDatabase()
-// program flow including the database, updating records on matches 
+// program flow including the database, updating records on matches
+/*
 async function mainWithDatabase(){
 
     // getting database information 
@@ -68,62 +127,4 @@ async function mainWithDatabase(){
     console.log("Done?")
     return true 
 }
-// program flow for getting professor data 
-async function extractProfessorData(): Promise<Professor[]> {
-    console.log(process.argv.slice(2));
-
-    // get professor names from mu catalog 
-    let allProfessorBasicInfo = await getProfessorBasicInfo();
-
-    // if testing, make names a subset
-    if ( process.argv.slice(2)[0] == 'testing') {
-        allProfessorBasicInfo = allProfessorBasicInfo.slice(0, 20);
-    }
-
-    // get mucourses data
-    const allCourses = await getCourses();
-    if (!allCourses) {
-        throw new Error('Error with getCourses()');
-    }
-
-    const allProfessorPromises = allProfessorBasicInfo.map(
-        async (name) => await onProfessorBasicInfo(name, allCourses),
-    );
-    return Promise.all(allProfessorPromises) 
-}
-
-// the data analysis based on the professor name
-export async function onProfessorBasicInfo(basicInfo: BasicInfo, allCourses: mucoursesData[]): Promise<Professor> {
-    // TODO these things
-    // check if professor exists
-    // if exists, get professor record and update
-    // if not exists, make professor id and new professor object
-
-    const courses = getCoursesByProfessor(basicInfo.name, allCourses);
-    const totalCourses = courses.length;
-
-    let totalGPA = 0
-    let averageGPA = 0
-    if (totalCourses > 0){
-        totalGPA = courses.reduce((sum: number, course: mucoursesData) => {
-            console.log(course.average);
-            return sum + course.average;
-        }, 0);
-        averageGPA = Math.round((totalGPA / totalCourses) * 100) / 100;
-    }
-
-    let articleContent = await getArticleContentByName(basicInfo.name);
-    if (articleContent != 'No article') {
-        articleContent = 'Article!';
-    }
-
-    const objectiveMetrics = new ObjectiveMetrics(averageGPA, 0);
-    const funFacts = new AIPromptAnswers({ funFacts: articleContent });
-
-    // make professor object (needs changing when database module complete)
-    return new Professor(basicInfo.toString(), {
-        basicInfo: basicInfo,
-        objectiveMetrics: objectiveMetrics,
-        aIPromptAnswers: funFacts,
-    });
-}
+*/
