@@ -24,6 +24,8 @@ type Result<T> = {
     data?: T;
 };
 
+import { TESTING } from "../keys/config.json"
+
 async function batchWriteProfessors(db: Firestore, professorArray: Professor[]): Promise<Result<Professor[]>>{
     if (professorArray.length > 500){
         throw new Error("Split this array before using this function; this array is too large")
@@ -47,7 +49,12 @@ async function batchWriteProfessors(db: Firestore, professorArray: Professor[]):
 }
 // this is the exported function, should handle all problems in here
 export async function writeProfessors(db: Firestore, professorArray: Professor[]){
-
+    if (TESTING){
+        return {
+            success: false,
+            message: "Testing is turned on to not bankrupt TMNH"
+        }
+    }
     // batch calls to firebase are in groups of 500, so split into these groups 
     const professorSubArrays: Professor[][] = []
     const maxArraySize = 500
