@@ -2,6 +2,8 @@ import { Browser, chromium, Page, Locator } from 'playwright';
 import { OperationCanceledException } from 'typescript';
 import { Professor, Name, SubjectiveMetrics } from 'mizzoureview-reading';
 
+import { RMP_ARRAY_LIMIT } from '../keys/config.json';
+
 export class RatingData {
     quality: number;
     difficulty: number;
@@ -437,6 +439,13 @@ export async function setProfessorSubjectiveMetricsLimited(
     page: Page,
     professors: Professor[],
 ): Promise<Boolean> {
+    if (professors.length > RMP_ARRAY_LIMIT) {
+        console.log(
+            'WARNING: make sure to split professor array before calling function or increase RMP_ARRAY_LIMIT in config.json',
+        );
+        return false;
+    }
+
     /* return false if no basic info exists */
     const basicInfoDefined = Object.values(
         professors.map((professor) => professor.basicInfo),
