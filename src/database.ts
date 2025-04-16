@@ -52,7 +52,8 @@ export async function writeProfessors(db: Firestore, professorArray: Professor[]
     if (TESTING){
         return {
             success: false,
-            message: "Testing is turned on to not bankrupt TMNH"
+            message: "Testing is turned on to not bankrupt TMNH, here's what would have been written",
+            data: professorArray
         }
     }
     // batch calls to firebase are in groups of 500, so split into these groups 
