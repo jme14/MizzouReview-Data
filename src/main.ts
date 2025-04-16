@@ -79,13 +79,6 @@ export async function writeMUCatalog() {
     return await writeProfessors(db, professorArray);
 }
 
-// this function accesses data from mucatalog, then puts data in the database
-// (just a wrapper over setProfessorObjectiveMetrics from mucourses module)
-export async function updateMUCourses(professorArray: Professor[]): Promise<Boolean>{
-    return await setProfessorObjectiveMetrics(
-        professorArray,
-    );
-}
 
 export async function initializeProfessorArrayFromDB() {
     // getting database information
@@ -97,6 +90,13 @@ export async function initializeProfessorArrayFromDB() {
         db: db,
         professorArray: professorArray
     }
+}
+// this function accesses data from mucatalog, then puts data in the database
+// (just a wrapper over setProfessorObjectiveMetrics from mucourses module)
+export async function updateMUCourses(professorArray: Professor[]): Promise<Boolean>{
+    return await setProfessorObjectiveMetrics(
+        professorArray,
+    );
 }
 /**
  * Writes to db professor array after getting professor array from database
