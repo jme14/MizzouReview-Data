@@ -392,7 +392,7 @@ export async function getSubjectiveMetricsFromProfessor(
     browser: Browser,
     page: Page,
     name: Name,
-): Promise<SubjectiveMetrics | null> {
+): Promise<SubjectiveMetrics | undefined> {
     await goToRMPStart(browser, page);
     const profInputElem = await fillProfName(browser, page, name);
     if (!profInputElem) {
@@ -419,7 +419,7 @@ export async function getSubjectiveMetricsFromProfessor(
         name,
     );
     if (!firstProfPageSuccess) {
-        return null;
+        return undefined;
     }
 
     const loadAllRatingsSuccessful = await loadAllRatings(browser, page);
@@ -430,4 +430,32 @@ export async function getSubjectiveMetricsFromProfessor(
     const metrics = await getAllComments(browser, page);
     const subjectiveMetrics = getSubjectiveMetrics(metrics);
     return subjectiveMetrics;
+}
+
+export async function setProfessorSubjectiveMetricsLimited(
+    browser: Browser,
+    page: Page,
+    professors: Professor[],
+): Promise<Boolean> {
+    /* return false if no basic info exists */
+    const basicInfoDefined = Object.values(
+        professors.map((professor) => professor.basicInfo),
+    ).every(Boolean);
+    if (!basicInfoDefined) {
+        return false;
+    }
+
+    try {
+        for (let i = 0; i < professors.length; i++) {
+            const subjectiveMetrics = await getSubjectiveMetricsFromProfessor(
+                browser,
+                page,
+                professors[i].basicInfo?.name,
+            );
+            professors[i].subjectiveMetrics = subjectiveMetrics;
+        }
+        return true;
+    } catch (err) {
+        return false;
+    }
 }
