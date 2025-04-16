@@ -1,6 +1,6 @@
 import { Browser, chromium, Page, Locator } from 'playwright';
 import { OperationCanceledException } from 'typescript';
-import { Professor, Name, SubjectiveMetrics } from 'mizzoureview-reading';
+import { Professor, Name, BasicInfo, SubjectiveMetrics } from 'mizzoureview-reading';
 
 import { RMP_ARRAY_LIMIT } from '../keys/config.json';
 
@@ -471,17 +471,19 @@ export async function setProfessorSubjectiveMetricsLimited(
         return false
     }
 
-    try {
-        for (let i = 0; i < professors.length; i++) {
+    for (let i = 0; i < professors.length; i++) {
+        try {
+            const profName: Name = professors[i].basicInfo!.name 
             const subjectiveMetrics = await getSubjectiveMetricsFromProfessor(
                 browser,
                 page,
-                professors[i].basicInfo?.name,
+                profName 
             );
             professors[i].subjectiveMetrics = subjectiveMetrics;
+        } catch (err) {
+            console.log(err)
+            console.log(`No RMP page found for ${professors[i].basicInfo?.name.toString()}`)
         }
-        return true;
-    } catch (err) {
-        return false;
     }
+    return true;
 }
