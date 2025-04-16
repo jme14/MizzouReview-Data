@@ -1,6 +1,7 @@
 // this file is for interacting with the mucourses api
 import axios from 'axios';
 import { Professor, Name, ObjectiveMetrics } from 'mizzoureview-reading';
+import { ObjectType } from 'typescript';
 export type mucoursesData = {
     dept: string;
     title: string;
@@ -94,6 +95,9 @@ export async function getProfessorCourseMap(): Promise<
     Map<string, mucoursesData[]>
 > {
     const courses = await getCourseArray();
+    if (courses.length == 0){
+        throw new Error("mucourses API call failure")
+    }
     const professorCourseMap = getProfessorCourseMapFromCourseArray(courses);
     return professorCourseMap;
 }
@@ -111,7 +115,7 @@ export function getCoursesByProfessor(
 export function getProfessorObjectiveMetrics(
     professorCourseMap: Map<string, mucoursesData[]>,
     professor: Professor,
-) {
+): ObjectiveMetrics {
     const profCourses = getCoursesByProfessor(
         professor.basicInfo?.name,
         professorCourseMap,
@@ -140,14 +144,23 @@ export function getProfessorObjectiveMetrics(
     return new ObjectiveMetrics(gpa, 0);
 }
 
-export async function setProfessorObjectiveMetrics(professors: Professor[]) {
-    const professorCourseMap = await getProfessorCourseMap();
-    professors.forEach(
-        (professor) =>
-            (professor.objectiveMetrics = getProfessorObjectiveMetrics(
-                professorCourseMap,
-                professor,
-            )),
-    );
-    return professors;
+/**
+ * Updates the given professor array with objective metrics derived from mucourses.com
+ * @param professors 
+ * @returns true on success, false on failure
+ */
+export async function setProfessorObjectiveMetrics(professors: Professor[]): Promise<Boolean> {
+    try{
+        const professorCourseMap = await getProfessorCourseMap();
+        professors.forEach(
+            (professor) =>
+                (professor.objectiveMetrics = getProfessorObjectiveMetrics(
+                    professorCourseMap,
+                    professor,
+                )),
+        );
+        return true
+    } catch(e){
+        return false
+    }
 }
