@@ -7,8 +7,14 @@ dotenv.config();
 //for use of general prompting from gemini
 async function generateAiInput(prompt: string){
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash "});
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if(!apiKey){
+        throw new Error("API key for Gemini is not set up correctly in environment");
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
 
     const request: GenerateContentRequest = {
         contents: [{ role: "user", parts: [{ text: prompt}] }],
@@ -24,6 +30,19 @@ async function generateAiInput(prompt: string){
     }
 }
 
+//this is just to test that it works; delete later IT WORKS!!!!!!!!
+/*async function main() {
+    const prompt = "Write a short poem about the moon.";
+    const generatedText = await generateAiInput(prompt);
+  
+    if (generatedText) {
+      console.log("Generated text:", generatedText);
+    }
+  }
+  
+  main();*/
+
 async function generateWikiFunFacts(articleText: string){
+    
 
 }
