@@ -13,4 +13,9 @@ b) Move this downloaded json file to keys/ directory
 c) Rename to admin.json
 
 ### Step 3: Run! 
-``` npm run dev```
+```npm run write -- {args}```
+
+#### What can you write? 
+To run all the data collection, run the following command:
+```npm run write -- --mucatalog --mucourses --wikipedia --rmp```
+To update information for a given module, simply run the command only with the arguments desired 
