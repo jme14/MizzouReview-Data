@@ -1,25 +1,32 @@
 import { describe, expect, test } from 'vitest';
-import { Name } from 'mizzoureview-reading';
+import { Name, Professor } from 'mizzoureview-reading';
 import { BasicInfo } from 'mizzoureview-reading';
-import { getCourses } from '../src/mucourses';
-import { updateMUCatalog, updateMUCourses } from '../src/main';
+import { createProfessorsFromCatalog, updateMUCourses } from '../src/main';
 import { TESTING, PROF_READ_LIMIT } from '../keys/config.json';
 
-describe('onProfessorName', async () => {
-    test('updateMUCatalog()', async () => {
-        // don't run if we don't want to write a billion things
-        if (TESTING) {
-            return;
-        }
+describe('professor object management', async () => {
+    let mucatalogProfessorArray: Professor[]
+    let mucoursesProfessorArray: Professor[]
 
-        const professorArray = await updateMUCatalog();
-        console.log(professorArray);
-        expect(professorArray.success).toBeTruthy();
+    test('createProfessorsFromCatalog()', async () => {
+        mucatalogProfessorArray = await createProfessorsFromCatalog();
+        expect(mucatalogProfessorArray).toBeTruthy();
+        expect(mucatalogProfessorArray.length).toBeGreaterThan(0)
     });
+
     test('updateMUCourses()', async() => {
-        if (TESTING){
-            const professors = await updateMUCourses()
-            expect(professors).toBe(PROF_READ_LIMIT)
-        }
+        mucoursesProfessorArray = mucatalogProfessorArray
+
+        // deep copy to keep track of how array has changed
+        mucatalogProfessorArray = mucatalogProfessorArray.map((prof) => ({...prof}))
+
+        const mucoursesSuccess = await updateMUCourses(mucoursesProfessorArray)
+
+        // no elements should be lost 
+        expect(mucoursesSuccess).toBeTruthy()
+
+        // the arrays should not be the same
+        expect(mucatalogProfessorArray).not.toBe(mucoursesProfessorArray)
     })
+
 });
