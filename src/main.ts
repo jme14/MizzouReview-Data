@@ -42,7 +42,6 @@ import {
 import { generateProfessorId } from './professorId';
 // import { getCourses } from './mucourses';
 import { mucoursesData } from './mucourses';
-import { initializeProfessor, updateProfessor } from './database';
 
 import { writeProfessors } from './database';
 import { TESTING, PROF_READ_LIMIT } from '../keys/config.json';
