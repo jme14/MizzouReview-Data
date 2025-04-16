@@ -17,7 +17,7 @@ export type mucoursesData = {
 };
 
 // will eventually want to not export this function
-export async function getCourses(): Promise<mucoursesData[]> {
+export async function getCourseArray(): Promise<mucoursesData[]> {
     try {
         const { data } = await axios.get('https://mucourses.com/api/courses');
         const fetchData: mucoursesData[] = data;
@@ -62,58 +62,64 @@ export async function getCourses(): Promise<mucoursesData[]> {
     return [];
 }
 
+export function getProfessorCourseMapFromCourseArray(
+    courseArray: mucoursesData[],
+) {
+    courseArray = courseArray.filter((course) => course.instructor !== '');
+
+    const nameCourseArray = courseArray.map((course) => {
+        return {
+            name: Name.getNameFromString(
+                course.instructor.toUpperCase(),
+                '{lname},{fname} {mname}',
+            ).toString(),
+            course: course,
+        };
+    });
+
+    const professorCourseMap = new Map<string, mucoursesData[]>();
+    nameCourseArray.forEach((tuple) => {
+        const arrayOfInterest = professorCourseMap.get(tuple.name);
+
+        // if the professor name not found yet
+        if (arrayOfInterest) {
+            arrayOfInterest.push(tuple.course);
+        } else {
+            professorCourseMap.set(tuple.name, [tuple.course]);
+        }
+    });
+    return professorCourseMap;
+}
+export async function getProfessorCourseMap(): Promise<
+    Map<string, mucoursesData[]>
+> {
+    const courses = await getCourseArray();
+    const professorCourseMap = getProfessorCourseMapFromCourseArray(courses);
+    return professorCourseMap;
+}
 export function getCoursesByProfessor(
     name: Name,
-    allCourses: mucoursesData[],
+    professorCourseMap: Map<string, mucoursesData[]>,
 ): mucoursesData[] {
-    if (!allCourses) {
-        throw new Error('allCourses undefined');
+    const courses = professorCourseMap.get(name.toString().toUpperCase());
+    if (!courses) {
+        return [];
     }
-
-    // remove courses without an instructor
-    allCourses = allCourses.filter((course) => course.instructor !== '');
-
-    const exactResultsEmpty: mucoursesData[] = [];
-    const almostResultsEmpty: mucoursesData[] = [];
-
-    // can you tell I just learned how to use reduce?
-    const [exactResults, almostResults] = allCourses.reduce(
-        (buckets, course) => {
-            const instructorName = Name.getNameFromString(
-                course.instructor,
-                '{lname},{fname} {mname}',
-            );
-            if (instructorName === name) {
-                // put into exact bucket
-                buckets[0].push(course);
-            } else if (instructorName.equalityIgnoringMiddleName(name)) {
-                // put into almost bucket
-                buckets[1].push(course);
-            }
-            return buckets;
-        },
-        [exactResultsEmpty, almostResultsEmpty],
-    );
-
-    // if an exact match, return
-    if (exactResults.length != 0) {
-        return exactResults;
-    }
-
-    // if no exact matches, return what almost captured
-    return almostResults;
+    return courses;
 }
 
 export function getProfessorObjectiveMetrics(
-    allCourses: mucoursesData[],
+    professorCourseMap: Map<string, mucoursesData[]>,
     professor: Professor,
 ) {
     const profCourses = getCoursesByProfessor(
         professor.basicInfo?.name,
-        allCourses,
+        professorCourseMap,
     );
+
     let totalAverages = 0;
     let totalTotalStudents = 0;
+
     for (let i = 0; i < profCourses.length; i++) {
         const totalStudents =
             profCourses[i].arange +
@@ -134,15 +140,14 @@ export function getProfessorObjectiveMetrics(
     return new ObjectiveMetrics(gpa, 0);
 }
 
-// this module could be substantially sped up, if necessary
 export async function setProfessorObjectiveMetrics(professors: Professor[]) {
-    const allCourses = await getCourses();
+    const professorCourseMap = await getProfessorCourseMap();
     professors.forEach(
         (professor) =>
             (professor.objectiveMetrics = getProfessorObjectiveMetrics(
-                allCourses,
+                professorCourseMap,
                 professor,
             )),
     );
-    return professors
+    return professors;
 }
