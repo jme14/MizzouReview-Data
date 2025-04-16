@@ -3,8 +3,10 @@ This module is for using the content in other modules and writing to the databas
 
 There are two major types of functions here
 1) object updaters (start with update)
-    these take Professor[] and returns updated Professor[]
+    these take Professor[] and returns true or false depending on success
 2) array writers (start with write)
+    these do the specified operation, then writes them to the database
+    these throw an error on failure 
 
 There's also the object creator function, which obtains the list of names in the first place
 */
@@ -80,14 +82,13 @@ export async function writeMUCatalog() {
 
 // this function accesses data from mucatalog, then puts data in the database
 // (just a wrapper over setProfessorObjectiveMetrics from mucourses module)
-export async function updateMUCourses(professorArray: Professor[]): Promise<Professor[]>{
-    const updatedProfessorArray = await setProfessorObjectiveMetrics(
+export async function updateMUCourses(professorArray: Professor[]): Promise<Boolean>{
+    return await setProfessorObjectiveMetrics(
         professorArray,
     );
-    return updatedProfessorArray;
 }
 
-export async function getProfessorArray() {
+export async function initializeProfessorArrayFromDB() {
     // getting database information
     const app = initializeApp(firebaseConfig);
     const db: Firestore = getFirestore(app);
@@ -98,11 +99,20 @@ export async function getProfessorArray() {
         professorArray: professorArray
     }
 }
+/**
+ * Writes to db professor array after getting professor array from database
+ * throws error on failure 
+ * @returns NEED STANDARDIZING
+ */
 export async function writeMUCourses(){
-    const {db, professorArray} = await getProfessorArray()
-    const updatedProfessorArray = await updateMUCourses(professorArray)
+    const {db, professorArray} = await initializeProfessorArrayFromDB()
+    const mucoursesSuccess = await updateMUCourses(professorArray)
 
-    return await writeProfessors(db,updatedProfessorArray)
+    if (!mucoursesSuccess){
+        throw new Error("Failed to update professors with mucourses data")
+    }
+
+    return await writeProfessors(db,professorArray)
 }
 
 // if running the entire module at once, call this function with all options enabled
@@ -126,11 +136,14 @@ export async function writeOptions(options: WriteOptions){
         professorArray = await createProfessorsFromCatalog()
     // otherwise, just read from the array
     } else {
-        ({db, professorArray} = await getProfessorArray())
+        ({db, professorArray} = await initializeProfessorArrayFromDB())
     }
 
     if(options.mucourses){
-        professorArray = await updateMUCourses(professorArray)
+        const mucoursesSuccess = await updateMUCourses(professorArray)
+        if (!mucoursesSuccess){
+            throw new Error("Failure to update with mucourses data")
+        }
     }
 
     return await writeProfessors(db, professorArray)
