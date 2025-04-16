@@ -7,6 +7,7 @@
     "build": "npx tsc",
     "start": "node dist/main.js",
     "dev": "npm run build && npm run start -- testing",
+    "write": "npm run build && node dist/cli.js",
     "test-all": "npx vitest",
     "test-main": "npx vitest run test/main.test.ts",
     "test-mucourses": "npx vitest run test/mucourses.test.ts",
@@ -37,14 +38,18 @@
     "dotenv": "^16.5.0",
     "firebase": "^11.2.0",
     "firebase-admin": "^13.0.2",
+    "inquirer": "^12.5.2",
     "mizzoureview-reading": "^1.1.0",
     "module-alias": "^2.2.3",
     "playwright": "^1.51.0",
     "typescript": "^5.7.3",
-    "uuid": "^11.0.5"
+    "uuid": "^11.0.5",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.0",
+    "@types/inquirer": "^9.0.7",
+    "@types/yargs": "^17.0.33",
     "esbuild": "^0.25.0",
     "ts-node": "^10.9.2",
     "vite": "^6.1.1",
