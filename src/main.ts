@@ -44,14 +44,16 @@ import { generateProfessorId } from './professorId';
 import { mucoursesData } from './mucourses';
 
 import { writeProfessors } from './database';
-import { TESTING, PROF_READ_LIMIT } from '../keys/config.json';
+import { TESTING, PROF_READ_LIMIT, RMP_ARRAY_LIMIT } from '../keys/config.json';
+import { getPage, setProfessorSubjectiveMetricsLimited } from './rmp';
+import { filter } from 'cheerio/dist/commonjs/api/traversing';
 
 type WriteOptions = {
     mucatalog?: boolean;
     mucourses?: boolean;
     wikipedia?: boolean;
     rmp?: boolean;
-}
+};
 const firebaseConfig = {
     credential: cert(require('../keys/admin.json')),
 };
@@ -79,71 +81,98 @@ export async function writeMUCatalog() {
     return await writeProfessors(db, professorArray);
 }
 
-
 export async function initializeProfessorArrayFromDB() {
     // getting database information
     const app = initializeApp(firebaseConfig);
     const db: Firestore = getFirestore(app);
 
-    const professorArray = TESTING ? await getSomeProfessors(db, PROF_READ_LIMIT) : await getAllProfessors(db)
+    const professorArray = TESTING
+        ? await getSomeProfessors(db, PROF_READ_LIMIT)
+        : await getAllProfessors(db);
     return {
         db: db,
-        professorArray: professorArray
-    }
+        professorArray: professorArray,
+    };
 }
 // this function accesses data from mucatalog, then puts data in the database
 // (just a wrapper over setProfessorObjectiveMetrics from mucourses module)
-export async function updateMUCourses(professorArray: Professor[]): Promise<Boolean>{
-    return await setProfessorObjectiveMetrics(
-        professorArray,
-    );
+export async function updateMUCourses(
+    professorArray: Professor[],
+): Promise<Boolean> {
+    return await setProfessorObjectiveMetrics(professorArray);
 }
 /**
  * Writes to db professor array after getting professor array from database
- * throws error on failure 
+ * throws error on failure
  * @returns NEED STANDARDIZING
  */
-export async function writeMUCourses(){
-    const {db, professorArray} = await initializeProfessorArrayFromDB()
-    const mucoursesSuccess = await updateMUCourses(professorArray)
+export async function writeMUCourses() {
+    const { db, professorArray } = await initializeProfessorArrayFromDB();
+    const mucoursesSuccess = await updateMUCourses(professorArray);
 
-    if (!mucoursesSuccess){
-        throw new Error("Failed to update professors with mucourses data")
+    if (!mucoursesSuccess) {
+        throw new Error('Failed to update professors with mucourses data');
     }
 
-    return await writeProfessors(db,professorArray)
+    return await writeProfessors(db, professorArray);
+}
+
+/* this rmp section is going to be kinda stupid */
+
+export async function writeRMP() {
+    const { db, professorArray } = await initializeProfessorArrayFromDB();
+
+    const filteredProfessorArray = professorArray.filter(
+        (professor) =>
+            professor.basicInfo &&
+            professor.objectiveMetrics &&
+            professor.objectiveMetrics.gpa != 0,
+    );
+    let professorSubarrays: Professor[][] = [];
+
+    for (let i = 0; i < filteredProfessorArray.length; i += RMP_ARRAY_LIMIT) {
+        professorSubarrays.push(filteredProfessorArray.slice(i, i + RMP_ARRAY_LIMIT));
+    }
+
+    const {browser, page} = await getPage()
+
+    for ( let i = 0 ; i < professorSubarrays.length ; i++){
+        await setProfessorSubjectiveMetricsLimited(browser, page, professorSubarrays[i])
+        await writeProfessors(db, professorSubarrays[i])
+    }
+    return true
 }
 
 // if running the entire module at once, call this function with all options enabled
-// more efficient than reading and writing for each submodule over and over 
+// more efficient than reading and writing for each submodule over and over
 // because this function only writes to db once after all interactions have been managed
-export async function writeOptions(options: WriteOptions){
+export async function writeOptions(options: WriteOptions) {
     // this means that everything is false
-    if (!Object.values(options).some(Boolean)){
+    if (!Object.values(options).some(Boolean)) {
         return {
             success: true,
-            message: "No options passed in, nothing to be done"
-        }
+            message: 'No options passed in, nothing to be done',
+        };
     }
 
-    let db: Firestore
-    let professorArray: Professor[]
+    let db: Firestore;
+    let professorArray: Professor[];
 
-    // if getting new mucatalog info requested, do that 
-    if (options.mucatalog){
-        db = getFirestore(initializeApp(firebaseConfig))
-        professorArray = await createProfessorsFromCatalog()
-    // otherwise, just read from the array
+    // if getting new mucatalog info requested, do that
+    if (options.mucatalog) {
+        db = getFirestore(initializeApp(firebaseConfig));
+        professorArray = await createProfessorsFromCatalog();
+        // otherwise, just read from the array
     } else {
-        ({db, professorArray} = await initializeProfessorArrayFromDB())
+        ({ db, professorArray } = await initializeProfessorArrayFromDB());
     }
 
-    if(options.mucourses){
-        const mucoursesSuccess = await updateMUCourses(professorArray)
-        if (!mucoursesSuccess){
-            throw new Error("Failure to update with mucourses data")
+    if (options.mucourses) {
+        const mucoursesSuccess = await updateMUCourses(professorArray);
+        if (!mucoursesSuccess) {
+            throw new Error('Failure to update with mucourses data');
         }
     }
 
-    return await writeProfessors(db, professorArray)
+    return await writeProfessors(db, professorArray);
 }
