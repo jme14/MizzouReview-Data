@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI, GenerateContentRequest } from "@google/generative-ai"
 import * as dotenv from 'dotenv';
 //import { getArticleContentByName } from './wikipedia';
+//import { }
 dotenv.config();
 
 
@@ -43,6 +44,15 @@ async function generateAiInput(prompt: string){
   main();*/
 
 async function generateWikiFunFacts(articleText: string){
-    
+    const prompt = "You are an anthropologist focusing on education. This is a wikipedia page about a professor. Give me your top 5 most interesting facts about this professor, responding with a max of 5 words per fact, with only the facts in your response, in a silly tone like hashtags without pound signs. Here is the wikipedia page: " + articleText;
+    const generatedText = await generateAiInput(prompt);
+
+    if (generatedText) {
+        console.log("Fun Facts Response:", generatedText);
+    }
 
 }
+
+//async function generateStudentLetter(allResponses: RatingData[]){ //need to import from rmp.ts, but also need to see how we want to do it
+
+//}
