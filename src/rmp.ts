@@ -451,7 +451,24 @@ export async function setProfessorSubjectiveMetricsLimited(
         professors.map((professor) => professor.basicInfo),
     ).every(Boolean);
     if (!basicInfoDefined) {
+        console.log("WARNING: make sure basic info is defined for all professors passed in")
         return false;
+    }
+
+    /* return false if no objective metrics exists */
+    const objectiveMetricsDefined = Object.values(
+        professors.map(professor => professor.objectiveMetrics)
+    ).every(Boolean)
+    if (!objectiveMetricsDefined){
+        console.log("WARNING: make sure objective metrics defined for all professors passed in")
+        return false
+    }
+
+    /* return false if any professor has a gpa of 0 */
+    const invalidProfessors = professors.filter(professor => professor.objectiveMetrics?.gpa == 0)
+    if (invalidProfessors.length > 0){
+        console.log("WARNING: make sure professors have an id before passing into function")
+        return false
     }
 
     try {
