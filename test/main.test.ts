@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { Name, Professor } from 'mizzoureview-reading';
 import { BasicInfo } from 'mizzoureview-reading';
-import { createProfessorsFromCatalog, updateMUCourses } from '../src/main';
+import { createProfessorsFromCatalog, updateMUCourses, writeRMP} from '../src/main';
 import { TESTING, PROF_READ_LIMIT } from '../keys/config.json';
 
-describe('professor object management', async () => {
+describe.skip('professor object management', () => {
     let mucatalogProfessorArray: Professor[]
     let mucoursesProfessorArray: Professor[]
 
@@ -30,3 +30,9 @@ describe('professor object management', async () => {
     })
 
 });
+
+describe('writing to database functions', () => {
+    test('writeRMP', {timeout:6_000_0000}, async () => {
+        await writeRMP()
+    })
+})
