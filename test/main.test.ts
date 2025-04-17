@@ -8,7 +8,7 @@ import {
     writeRMP,
 } from '../src/main';
 
-describe.skip('professor object management', () => {
+describe('professor object management', () => {
     let mucatalogProfessorArray: Professor[];
     let mucoursesProfessorArray: Professor[];
 
@@ -36,7 +36,7 @@ describe.skip('professor object management', () => {
     });
 });
 
-describe('writing to database functions', () => {
+describe.skip('writing to database functions', () => {
     test('writeRMP', { timeout: 6_000_0000 }, async () => {
         await writeRMP();
     });
