@@ -9,12 +9,11 @@ import {
     getProfessorCourseMap,
 } from '../src/mucourses';
 import {
-    Professor,
-    BasicInfo,
     ObjectiveMetrics,
-    Name,
-} from 'mizzoureview-reading';
-
+    BasicInfo,
+    Professor,
+} from 'mizzoureview-reading/models/professor';
+import { Name } from 'mizzoureview-reading/models/name';
 describe('API access and getting the map', () => {
     let data: mucoursesData[] = [];
     let courseMap: Map<string, mucoursesData[]>;
@@ -87,11 +86,13 @@ describe('API result handling', async () => {
         expect(objectiveMetrics).toBeTruthy();
     });
     test('Testing correct setting', async () => {
-        const professors = await setProfessorObjectiveMetrics([professor]);
-        professor.objectiveMetrics = objectiveMetrics;
-
-        const professorResult = professors[0];
-        expect(professorResult).toEqual(professor);
-        console.log(professorResult);
+        expect(professor.objectiveMetrics).toBeFalsy();
+        const success = await setProfessorObjectiveMetrics([professor]);
+        expect(success).toBeTruthy();
+        expect(professor.objectiveMetrics).toBeTruthy();
+        expect(professor.objectiveMetrics?.gpa).toBeGreaterThanOrEqual(0);
+        expect(professor.objectiveMetrics?.confidence).toBeGreaterThanOrEqual(
+            0,
+        );
     });
 });
