@@ -1,4 +1,4 @@
-import { BasicInfo } from "mizzoureview-reading";
+import { BasicInfo } from 'mizzoureview-reading/models/professor';
 // below function from chatgpt with minor edits
 export function generateProfessorId(
     basicInfo: BasicInfo,
