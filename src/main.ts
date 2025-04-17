@@ -21,12 +21,12 @@ import {
     DocumentReference,
 } from 'firebase-admin/firestore';
 
-import { getProfessorBasicInfo } from './mucatalog';
+import { getProfessorBasicInfo } from './mucatalog.js';
 import {
     getCoursesByProfessor,
     setProfessorObjectiveMetrics,
-} from './mucourses';
-import { getArticleContentByName } from './wikipedia';
+} from './mucourses.js';
+import { getArticleContentByName } from './wikipedia.js';
 
 import {
     BasicInfo,
@@ -131,16 +131,22 @@ export async function writeRMP() {
     let professorSubarrays: Professor[][] = [];
 
     for (let i = 0; i < filteredProfessorArray.length; i += RMP_ARRAY_LIMIT) {
-        professorSubarrays.push(filteredProfessorArray.slice(i, i + RMP_ARRAY_LIMIT));
+        professorSubarrays.push(
+            filteredProfessorArray.slice(i, i + RMP_ARRAY_LIMIT),
+        );
     }
 
-    const {browser, page} = await getPage()
+    const { browser, page } = await getPage();
 
-    for ( let i = 0 ; i < professorSubarrays.length ; i++){
-        await setProfessorSubjectiveMetricsLimited(browser, page, professorSubarrays[i])
-        await writeProfessors(db, professorSubarrays[i])
+    for (let i = 0; i < professorSubarrays.length; i++) {
+        await setProfessorSubjectiveMetricsLimited(
+            browser,
+            page,
+            professorSubarrays[i],
+        );
+        await writeProfessors(db, professorSubarrays[i]);
     }
-    return true
+    return true;
 }
 
 // if running the entire module at once, call this function with all options enabled
