@@ -2,8 +2,8 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import inquirer from 'inquirer';
 
-import { writeOptions } from './main';
- 
+import { writeOptions } from './main.js';
+
 interface WriteOptionsArgs {
     mucatalog: boolean;
     mucourses: boolean;
