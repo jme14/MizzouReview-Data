@@ -1,7 +1,11 @@
 // this file is for interacting with the mucourses api
 import axios from 'axios';
-import { Professor, Name, ObjectiveMetrics } from 'mizzoureview-reading';
-import { ObjectType } from 'typescript';
+import {
+    Professor,
+    ObjectiveMetrics,
+} from 'mizzoureview-reading/models/professor';
+import { Name } from 'mizzoureview-reading/models/name';
+
 export type mucoursesData = {
     dept: string;
     title: string;
