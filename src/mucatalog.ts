@@ -1,7 +1,8 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
-import { Name, BasicInfo } from 'mizzoureview-reading'
+import { Name } from 'mizzoureview-reading/models/name';
+import { BasicInfo } from 'mizzoureview-reading/models/professor';
 
 export async function fetchCatalogPage(): Promise<string> {
     try {
@@ -23,11 +24,13 @@ function parseFacultyString(
     // name; title; department; education; school
     // except only department is required
 
-    const facParts = facString.split(';').map(facPart => facPart.trim());
+    const facParts = facString.split(';').map((facPart) => facPart.trim());
 
-    const titlePattern = /\b(instructor|part-time|emeritus|prof|residnt|resrch|spclst|fellow|adjunct|director)\b/i;
+    const titlePattern =
+        /\b(instructor|part-time|emeritus|prof|residnt|resrch|spclst|fellow|adjunct|director)\b/i;
     // if it's doctor, we have education
-    const educationPattern = /\b(doctor|bachelor|master|hs graduate or equivalent|registered nurse|specialist of education|degree 1|college 1|not indicated)\b/i;
+    const educationPattern =
+        /\b(doctor|bachelor|master|hs graduate or equivalent|registered nurse|specialist of education|degree 1|college 1|not indicated)\b/i;
     // if university is in there, we know it describes the school
     const schoolPattern = /\b(university)\b/i;
 
@@ -75,34 +78,36 @@ function parseFacultyString(
         }
     } else if (facParts.length == 3) {
         // in this case, only 1 of the following is here: title, education, or school
-        if (facParts[1].match(titlePattern)){
-            const title = facParts[1]
-            const department = facParts[2]
-            return new BasicInfo(name, department, {title: title})
-        } 
-        const department = facParts[1]
-        // education is the other field 
-        if (facParts[2].match(educationPattern)){
-            const education = facParts[2]
-            return new BasicInfo(name, department, {education: education})
+        if (facParts[1].match(titlePattern)) {
+            const title = facParts[1];
+            const department = facParts[2];
+            return new BasicInfo(name, department, { title: title });
         }
-        // school is the other field 
-        if (facParts[2].match(schoolPattern)){
-            return new BasicInfo(name, department)
+        const department = facParts[1];
+        // education is the other field
+        if (facParts[2].match(educationPattern)) {
+            const education = facParts[2];
+            return new BasicInfo(name, department, { education: education });
         }
-        // if matching not as expected, fix regex  
-        throw new Error("Incomplete regex; can't parse line")
+        // school is the other field
+        if (facParts[2].match(schoolPattern)) {
+            return new BasicInfo(name, department);
+        }
+        // if matching not as expected, fix regex
+        throw new Error("Incomplete regex; can't parse line");
 
-    // in this case, we only have name and department. 
+        // in this case, we only have name and department.
     } else if (facParts.length == 2) {
-        const department = facParts[1]
-        return new BasicInfo(name, department)
-    // no department, just a name on the line 
-    } else if (facParts.length == 1){
-        return new BasicInfo(name, "NO DEPARTMENT FOUND")
-    // line's got nothing 
+        const department = facParts[1];
+        return new BasicInfo(name, department);
+        // no department, just a name on the line
+    } else if (facParts.length == 1) {
+        return new BasicInfo(name, 'NO DEPARTMENT FOUND');
+        // line's got nothing
     } else {
-        throw new Error("Invalid line passed, check lines before using this function")
+        throw new Error(
+            'Invalid line passed, check lines before using this function',
+        );
     }
 }
 export async function getProfessorBasicInfo(): Promise<BasicInfo[]> {
@@ -114,19 +119,25 @@ export async function getProfessorBasicInfo(): Promise<BasicInfo[]> {
     const $ = cheerio.load(webpageContent);
     const paragraphs = $('p');
     const paragraphsWithStrong = paragraphs.has('strong');
-    const basicInfoArray: BasicInfo[] = []
+    const basicInfoArray: BasicInfo[] = [];
     paragraphsWithStrong.each((i, el) => {
         const completeString = $(el).text();
         const nameString = $(el).find('strong').text();
-        const currentName = Name.getNameFromString(nameString, '{lname},{fname} {mname}')
-        const currentBasicInfo = parseFacultyString(currentName, completeString)
-        if (currentBasicInfo == undefined){
-            throw new Error("basic info undefined, weird parsing error")
+        const currentName = Name.getNameFromString(
+            nameString,
+            '{lname},{fname} {mname}',
+        );
+        const currentBasicInfo = parseFacultyString(
+            currentName,
+            completeString,
+        );
+        if (currentBasicInfo == undefined) {
+            throw new Error('basic info undefined, weird parsing error');
         }
-        basicInfoArray.push(currentBasicInfo)
+        basicInfoArray.push(currentBasicInfo);
     });
 
-    return basicInfoArray 
+    return basicInfoArray;
 }
 
 // this is just for debugging
