@@ -95,8 +95,8 @@ export async function getProfessorCourseMap(): Promise<
     Map<string, mucoursesData[]>
 > {
     const courses = await getCourseArray();
-    if (courses.length == 0){
-        throw new Error("mucourses API call failure")
+    if (courses.length == 0) {
+        throw new Error('mucourses API call failure');
     }
     const professorCourseMap = getProfessorCourseMapFromCourseArray(courses);
     return professorCourseMap;
@@ -116,8 +116,14 @@ export function getProfessorObjectiveMetrics(
     professorCourseMap: Map<string, mucoursesData[]>,
     professor: Professor,
 ): ObjectiveMetrics {
+    if (!professor.basicInfo) {
+        throw new Error('Professor has invalid basic info');
+    }
+    if (!professor.basicInfo.name) {
+        throw new Error('Professor has invalid name');
+    }
     const profCourses = getCoursesByProfessor(
-        professor.basicInfo?.name,
+        professor.basicInfo!.name,
         professorCourseMap,
     );
 
@@ -146,11 +152,13 @@ export function getProfessorObjectiveMetrics(
 
 /**
  * Updates the given professor array with objective metrics derived from mucourses.com
- * @param professors 
+ * @param professors
  * @returns true on success, false on failure
  */
-export async function setProfessorObjectiveMetrics(professors: Professor[]): Promise<Boolean> {
-    try{
+export async function setProfessorObjectiveMetrics(
+    professors: Professor[],
+): Promise<Boolean> {
+    try {
         const professorCourseMap = await getProfessorCourseMap();
         professors.forEach(
             (professor) =>
@@ -159,8 +167,8 @@ export async function setProfessorObjectiveMetrics(professors: Professor[]): Pro
                     professor,
                 )),
         );
-        return true
-    } catch(e){
-        return false
+        return true;
+    } catch (e) {
+        return false;
     }
 }
