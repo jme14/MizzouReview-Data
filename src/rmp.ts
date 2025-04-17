@@ -1,8 +1,18 @@
 import { Browser, chromium, Page, Locator } from 'playwright';
 import { OperationCanceledException } from 'typescript';
-import { Professor, Name, BasicInfo, SubjectiveMetrics } from 'mizzoureview-reading';
+// import { Professor, Name, BasicInfo, SubjectiveMetrics } from 'mizzoureview-reading';
 
-import { RMP_ARRAY_LIMIT } from '../keys/config.json';
+import {
+    Professor,
+    SubjectiveMetrics
+} from "mizzoureview-reading/models/professor"
+
+import {
+    Name,
+} from "mizzoureview-reading/models/name"
+
+import config from "../keys/config.json" with {type: "json"}
+const RMP_ARRAY_LIMIT = config.RMP_ARRAY_LIMIT
 
 export class RatingData {
     quality: number;
