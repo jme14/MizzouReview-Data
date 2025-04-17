@@ -21,32 +21,23 @@ import {
     DocumentReference,
 } from 'firebase-admin/firestore';
 
+import { Professor } from 'mizzoureview-reading/models/professor';
+import {
+    getAllProfessors,
+    getSomeProfessors,
+} from 'mizzoureview-reading/database-admin';
+
+import config from '../keys/config.json' with {type: "json"}
+const { TESTING, PROF_READ_LIMIT, RMP_ARRAY_LIMIT} = config
+
 import { getProfessorBasicInfo } from './mucatalog.js';
 import {
     getCoursesByProfessor,
     setProfessorObjectiveMetrics,
 } from './mucourses.js';
-import { getArticleContentByName } from './wikipedia.js';
-
-import {
-    BasicInfo,
-    ObjectiveMetrics,
-    Professor,
-    SubjectiveMetrics,
-    AIPromptAnswers,
-    Name,
-    getAllProfessors,
-    getSomeProfessors,
-} from 'mizzoureview-reading';
-
-import { generateProfessorId } from './professorId';
-// import { getCourses } from './mucourses';
-import { mucoursesData } from './mucourses';
-
-import { writeProfessors } from './database';
-import { TESTING, PROF_READ_LIMIT, RMP_ARRAY_LIMIT } from '../keys/config.json';
-import { getPage, setProfessorSubjectiveMetricsLimited } from './rmp';
-import { filter } from 'cheerio/dist/commonjs/api/traversing';
+import { generateProfessorId } from './professorId.js';
+import { writeProfessors } from './database.js';
+import { getPage, setProfessorSubjectiveMetricsLimited } from './rmp.js';
 
 type WriteOptions = {
     mucatalog?: boolean;
