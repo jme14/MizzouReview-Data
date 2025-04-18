@@ -67,6 +67,7 @@ async function main() {
     try {
         const result = await writeOptions(options);
         console.log('✔ Success:', result);
+        process.exit(0);
     } catch (err) {
         console.error('❌ Failed:', err);
         process.exit(1);
