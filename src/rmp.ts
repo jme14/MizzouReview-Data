@@ -293,7 +293,7 @@ export function getDifficulty(metrics: RatingData[]) {
         }
     }
     try {
-        return Math.ceil((totalDifficulty / totalWeight) * 2);
+        return (totalDifficulty / totalWeight) * 2;
     } catch (e) {
         return 0;
     }
@@ -312,7 +312,7 @@ export function getQuality(metrics: RatingData[]) {
         }
     }
     try {
-        return Math.ceil((totalDifficulty / totalWeight) * 2);
+        return (totalDifficulty / totalWeight) * 2;
     } catch (e) {
         return 0;
     }
@@ -339,7 +339,7 @@ export function getGradingIntensity(metrics: RatingData[]) {
     const percentRatingsContainToughGrader =
         (toughGraderCount || 0) / ratingCount;
 
-    return Math.ceil(percentRatingsContainToughGrader * 10);
+    return percentRatingsContainToughGrader * 10;
 }
 export function getAttendance(metrics: RatingData[]) {
     let attendanceWriterCount = metrics.length;
@@ -354,7 +354,7 @@ export function getAttendance(metrics: RatingData[]) {
 
     const attendanceRequiredPercentage =
         attendanceRequired / attendanceWriterCount;
-    return Math.ceil(attendanceRequiredPercentage * 10);
+    return attendanceRequiredPercentage * 10;
 }
 export function getTextbook(metrics: RatingData[]) {
     let textbookWriterCount = metrics.length;
@@ -368,7 +368,7 @@ export function getTextbook(metrics: RatingData[]) {
     });
 
     const textbookRequiredPercentage = textbookRequired / textbookWriterCount;
-    return Math.ceil(textbookRequiredPercentage * 10);
+    return textbookRequiredPercentage * 10;
 }
 export function getPolarization(metrics: RatingData[]) {
     const numbers = metrics.map((metric) => metric.quality);
@@ -381,7 +381,7 @@ export function getPolarization(metrics: RatingData[]) {
     // this is a range between 0 and 2, so...
     const standarddeviation = Math.sqrt(variance);
 
-    return Math.ceil(standarddeviation * 5);
+    return standarddeviation * 5;
 }
 export function getSubjectiveMetrics(metrics: RatingData[]): SubjectiveMetrics {
     const quality = getQuality(metrics);
