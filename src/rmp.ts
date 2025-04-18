@@ -84,7 +84,7 @@ export async function goToRMPStart(browser: Browser, page: Page) {
     await page.goto('https://www.ratemyprofessors.com/search/professors/', {
         waitUntil: 'domcontentloaded',
     });
-    console.log('Navigation to start successful');
+    // console.log('Navigation to start successful');
 }
 export async function urlValid(
     browser: Browser,
@@ -111,7 +111,7 @@ export async function fillProfName(browser: Browser, page: Page, name: Name) {
     }
     await inputElements.clear();
     await inputElements.fill(name.toString());
-    console.log('Filling professor name successful');
+    // console.log('Filling professor name successful');
     return inputElements;
 }
 // fill the school search item
@@ -127,7 +127,7 @@ export async function fillSchool(browser: Browser, page: Page) {
         throw new OperationCanceledException();
     }
     await inputElements.fill('University of Missouri - Columbia');
-    console.log('Filling school name successful');
+    // console.log('Filling school name successful');
     return inputElements;
 }
 export async function navigateToProfListPage(
@@ -143,10 +143,10 @@ export async function navigateToProfListPage(
     await page.keyboard.press('Enter');
     const afterURL = page.url();
     if (beforeURL == afterURL) {
-        console.log('Navigating to prof list page failure');
+        // console.log('Navigating to prof list page failure');
         return false;
     }
-    console.log('Navigating to prof list page successful');
+    // console.log('Navigating to prof list page successful');
     return true;
 }
 
@@ -181,12 +181,12 @@ export async function navigateToFirstProfPage(
         await page.waitForLoadState('load');
         const finalURL = page.url();
         if (initialURL != finalURL) {
-            console.log('Navigating to first prof page success');
+            // console.log('Navigating to first prof page success');
             return true;
         }
     }
-    console.log(allNameElements);
-    console.log('Navigating to first prof page failure');
+    // console.log(allNameElements);
+    // console.log('Navigating to first prof page failure');
     return false;
 }
 
@@ -241,7 +241,7 @@ export async function loadAllRatings(browser: Browser, page: Page) {
         });
         currentListCount = await listItemsLocator.count();
     }
-    console.log('Ratings loading successful');
+    // console.log('Ratings loading successful');
     return true;
 }
 
@@ -275,7 +275,7 @@ export async function getAllComments(
         }
     }
 
-    console.log('Comment reading successful');
+    // console.log('Comment reading successful');
     return allResponses;
 }
 
@@ -491,8 +491,8 @@ export async function setProfessorSubjectiveMetricsLimited(
             );
             professors[i].subjectiveMetrics = subjectiveMetrics;
         } catch (err) {
-            console.log(err)
-            console.log(`No RMP page found for ${professors[i].basicInfo?.name.toString()}`)
+            // console.log(err)
+            // console.log(`No RMP page found for ${professors[i].basicInfo?.name.toString()}`)
         }
     }
     return true;
