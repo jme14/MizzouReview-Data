@@ -27,6 +27,7 @@ import {
 } from 'firebase-admin/firestore';
 
 import cliProgress from 'cli-progress';
+import inquirer from 'inquirer';
 
 import { Professor } from 'mizzoureview-reading/models/professor';
 import {
@@ -40,7 +41,7 @@ import {
     setProfessorObjectiveMetrics,
 } from './mucourses.js';
 import { generateProfessorId } from './professorId.js';
-import { writeProfessors } from './database.js';
+import { writeProfessors, WriteResult } from './database.js';
 import { getPage, setProfessorSubjectiveMetricsLimited, sleep } from './rmp.js';
 import { Browser, Page } from 'playwright';
 
@@ -121,7 +122,7 @@ export async function updateMUCourses(
 /**
  * Writes to db professor array after getting professor array from database
  * throws error on failure
- * @returns NEED STANDARDIZING
+ * @returns
  */
 export async function writeMUCourses() {
     const { db, professorArray } = await initializeProfessorArrayFromDB();
@@ -322,6 +323,24 @@ export async function writeOptions(options: WriteOptions) {
     // write from this data quick to get, then writeRMP writes professors 10 at a time
     const firstWriteResult = await writeProfessors(db, professorArray);
 
+    if (!firstWriteResult.success) {
+        console.log(firstWriteResult.message);
+        firstWriteResult.data.forEach(console.log);
+        const { confirm } = await inquirer.prompt([
+            {
+                type: 'confirm',
+                name: 'confirm',
+                message: `Something has gone wrong in the first database write, do you wish to continue?`,
+                default: false,
+            },
+        ]);
+        if (!confirm) {
+            return {
+                success: false,
+                message: 'Failure after first write',
+            };
+        }
+    }
     if (options.rmp) {
         const writeRMPSuccess = await writeRMP({
             db: db,
