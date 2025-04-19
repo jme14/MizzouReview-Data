@@ -21,8 +21,9 @@ type Result<T> = {
     data?: T;
 };
 
-import config from '../keys/config.json' with { type: "json"};
-const TESTING = config.TESTING
+import { config } from 'dotenv';
+config();
+const TESTING = process.env.TESTING;
 
 async function batchWriteProfessors(
     db: Firestore,
