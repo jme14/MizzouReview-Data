@@ -4,15 +4,14 @@ import { OperationCanceledException } from 'typescript';
 
 import {
     Professor,
-    SubjectiveMetrics
-} from "mizzoureview-reading/models/professor"
+    SubjectiveMetrics,
+} from 'mizzoureview-reading/models/professor';
 
-import {
-    Name,
-} from "mizzoureview-reading/models/name"
+import { Name } from 'mizzoureview-reading/models/name';
 
-import config from "../keys/config.json" with {type: "json"}
-const RMP_ARRAY_LIMIT = config.RMP_ARRAY_LIMIT
+import { config } from 'dotenv';
+config();
+const RMP_ARRAY_LIMIT = Number(process.env.RMP_ARRAY_LIMIT);
 
 export class RatingData {
     quality: number;
@@ -72,7 +71,10 @@ export async function sleep(seconds: number) {
     await new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
 // go to RMP
-export async function getPage() {
+export async function getPage(options?: { headless: boolean }) {
+    if (!options) {
+        options = { headless: true };
+    }
     // const browser = await chromium.launch({ headless: false });
     const browser = await chromium.launch();
     const page = await browser.newPage();
@@ -461,33 +463,41 @@ export async function setProfessorSubjectiveMetricsLimited(
         professors.map((professor) => professor.basicInfo),
     ).every(Boolean);
     if (!basicInfoDefined) {
-        console.log("WARNING: make sure basic info is defined for all professors passed in")
+        console.log(
+            'WARNING: make sure basic info is defined for all professors passed in',
+        );
         return false;
     }
 
     /* return false if no objective metrics exists */
     const objectiveMetricsDefined = Object.values(
-        professors.map(professor => professor.objectiveMetrics)
-    ).every(Boolean)
-    if (!objectiveMetricsDefined){
-        console.log("WARNING: make sure objective metrics defined for all professors passed in")
-        return false
+        professors.map((professor) => professor.objectiveMetrics),
+    ).every(Boolean);
+    if (!objectiveMetricsDefined) {
+        console.log(
+            'WARNING: make sure objective metrics defined for all professors passed in',
+        );
+        return false;
     }
 
     /* return false if any professor has a gpa of 0 */
-    const invalidProfessors = professors.filter(professor => professor.objectiveMetrics?.gpa == 0)
-    if (invalidProfessors.length > 0){
-        console.log("WARNING: make sure professors have an id before passing into function")
-        return false
+    const invalidProfessors = professors.filter(
+        (professor) => professor.objectiveMetrics?.gpa == 0,
+    );
+    if (invalidProfessors.length > 0) {
+        console.log(
+            'WARNING: make sure professors have an id before passing into function',
+        );
+        return false;
     }
 
     for (let i = 0; i < professors.length; i++) {
         try {
-            const profName: Name = professors[i].basicInfo!.name 
+            const profName: Name = professors[i].basicInfo!.name;
             const subjectiveMetrics = await getSubjectiveMetricsFromProfessor(
                 browser,
                 page,
-                profName 
+                profName,
             );
             professors[i].subjectiveMetrics = subjectiveMetrics;
         } catch (err) {
