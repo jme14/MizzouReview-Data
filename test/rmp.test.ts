@@ -23,8 +23,8 @@ import { Browser, Page, Locator } from 'playwright';
 import { Name } from 'mizzoureview-reading/models/name';
 
 describe('parts', () => {
-    const testName = new Name('Jim', 'Ries');
-    const expectedReviews = 106;
+    const testName = new Name('Chip', 'Gubera');
+    const expectedReviews = 24;
     let browser: Browser;
     let page: Page;
     let profInputElem: Locator;
@@ -32,7 +32,7 @@ describe('parts', () => {
     let ratingData: RatingData[];
 
     beforeAll(async () => {
-        ({ browser, page } = await getPage());
+        ({ browser, page } = await getPage({ headless: false }));
     });
 
     afterAll(async () => {
@@ -69,7 +69,6 @@ describe('parts', () => {
     });
 
     test('getting to prof page page', async () => {
-        const name = new Name('Jim', 'Ries');
         const jimrCount = await navigateToFirstProfPage(
             browser,
             page,
