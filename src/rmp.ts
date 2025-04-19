@@ -132,7 +132,7 @@ export async function fillSchool(browser: Browser, page: Page) {
 
     await page
         .locator(
-            '[aria-label="School page for University of Missouri - Kansas City"]',
+            '[aria-label="School page for University of Missouri - Columbia"]',
         )
         .click();
 
