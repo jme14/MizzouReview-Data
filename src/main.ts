@@ -175,6 +175,7 @@ export async function searchRMP(
     oldPage: Page,
     shortProfessors: Professor[],
     retryCounter: number,
+    innerBar: cliProgress.SingleBar,
 ) {
     let success: Boolean = true;
     try {
@@ -184,13 +185,16 @@ export async function searchRMP(
             shortProfessors,
         );
         if (!success) {
+            innerBar.stop();
             throw new SearchRMPInvalidParamsError(
                 'Params invalid in searchRMP',
             );
         }
+        innerBar.increment();
     } catch (err) {
         // if params error, throw it upward
         if (err instanceof SearchRMPInvalidParamsError) {
+            innerBar.stop();
             throw err;
         }
 
@@ -201,8 +205,15 @@ export async function searchRMP(
             // exponential backoff
             await sleep(27 / (retryCounter * retryCounter));
             const { browser, page } = await getPage();
-            return searchRMP(browser, page, shortProfessors, retryCounter - 1);
+            return searchRMP(
+                browser,
+                page,
+                shortProfessors,
+                retryCounter - 1,
+                innerBar,
+            );
         }
+        innerBar.stop();
         throw new SearchRMPCrashError('Retried and cannot load content.');
     }
 }
@@ -251,7 +262,7 @@ export async function writeRMP(options?: WriteRMPOptions) {
 
     let fatalErrorCounter = 0;
     let lastRunFatalError = false;
-
+    /* 
     // create a new progress bar instance
     const progressBar = new cliProgress.SingleBar({
         format: 'Progress |{bar}| {percentage}% || {value}/{total} items',
@@ -259,10 +270,29 @@ export async function writeRMP(options?: WriteRMPOptions) {
         barIncompleteChar: '\u2591',
         hideCursor: true,
     });
-    progressBar.start(professorSubarrays.length, 0);
+    */
+
+    // Create a multi bar instance
+    const multibar = new cliProgress.MultiBar(
+        {
+            clearOnComplete: false,
+            hideCursor: true,
+            format: '{bar} | {percentage}% | {value}/{total} | {label}',
+        },
+        cliProgress.Presets.shades_classic,
+    );
+
+    // Create two progress bars
+    const outerBar = multibar.create(professorSubarrays.length, 0, {
+        label: 'Outer',
+    });
+    const innerBar = multibar.create(RMP_ARRAY_LIMIT, 0, { label: 'Inner' });
+    // progressBar.start(professorSubarrays.length, 0);
     for (let i = 0; i < professorSubarrays.length; i++) {
         try {
-            await searchRMP(browser, page, professorSubarrays[i], 3);
+            innerBar.setTotal(professorSubarrays[i].length);
+            innerBar.update(0);
+            await searchRMP(browser, page, professorSubarrays[i], 3, innerBar);
         } catch (err) {
             if (err instanceof SearchRMPCrashError) {
                 if (lastRunFatalError) {
@@ -281,11 +311,11 @@ export async function writeRMP(options?: WriteRMPOptions) {
             // only write professors if everything went okay
             continue;
         } finally {
-            progressBar.update(i + 1);
+            outerBar.update(i + 1);
         }
         await writeProfessors(db, professorSubarrays[i]);
     }
-    progressBar.stop();
+    outerBar.stop();
     return true;
 }
 
