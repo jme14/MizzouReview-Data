@@ -403,7 +403,7 @@ export async function writeOptions(options: WriteOptions) {
         }
         return {
             success: true,
-            message: `Finished with settings ${options}`,
+            message: `Finished with settings ${JSON.stringify(options)}`,
         };
     }
 }
