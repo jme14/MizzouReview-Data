@@ -15,36 +15,54 @@ import {
     getProfessorFromID,
     getProfessorsFromDepartment,
 } from 'mizzoureview-reading/database-admin';
-type Result<T> = {
-    success: boolean;
-    message: string;
-    data?: T;
-};
 
 import { config } from 'dotenv';
 config();
 const TESTING = process.env.TESTING;
 
+export interface WriteResult {
+    success: boolean;
+    message: string;
+    data: Professor[];
+}
+
+export class BatchWriteInvalidParamsError extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}
+export class BatchWriteFirestoreError extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}
 async function batchWriteProfessors(
     db: Firestore,
     professorArray: Professor[],
-): Promise<Result<Professor[]>> {
+): Promise<WriteResult> {
     if (professorArray.length > 500) {
-        throw new Error(
+        throw new BatchWriteInvalidParamsError(
             'Split this array before using this function; this array is too large',
         );
     }
 
-    function batchSet(prof: Professor) {
+    function batchSet(batch: WriteBatch, prof: Professor) {
         const docRef = db.collection('professors').doc(prof.professorId);
         const profData = JSON.parse(JSON.stringify(prof));
         batch.set(docRef, profData);
     }
 
-    const batch: WriteBatch = db.batch();
-    professorArray.forEach(batchSet);
+    try {
+        const batch: WriteBatch = db.batch();
+        professorArray.forEach((prof) => batchSet(batch, prof));
 
-    await batch.commit();
+        await batch.commit();
+    } catch (err) {
+        console.log(err);
+        throw new BatchWriteFirestoreError(
+            'Failure in batch write, shown above',
+        );
+    }
     return {
         success: true,
         message: 'Write successful',
@@ -55,7 +73,7 @@ async function batchWriteProfessors(
 export async function writeProfessors(
     db: Firestore,
     professorArray: Professor[],
-) {
+): Promise<WriteResult> {
     if (TESTING) {
         return {
             success: false,
@@ -71,8 +89,9 @@ export async function writeProfessors(
         professorSubArrays.push(professorArray.slice(i, i + maxArraySize));
     }
 
+    /* 
     // hold the promises which resolve upon the batch operations completing
-    const promiseArray: Promise<Result<Professor[]>>[] = [];
+    const promiseArray: Promise<WriteResult>[] = [];
     professorSubArrays.forEach((arr) =>
         promiseArray.push(batchWriteProfessors(db, arr)),
     );
@@ -82,16 +101,45 @@ export async function writeProfessors(
     const failedWrites = results.filter(
         (result) => result.status === 'rejected',
     );
+    */
+
+    const results = await Promise.all(
+        professorSubArrays.map((array) =>
+            batchWriteProfessors(db, array).then(
+                (res) => ({
+                    status: 'fulfilled',
+                    value: res,
+                    professors: array,
+                }),
+                (err: Error) => ({
+                    status: 'rejected',
+                    value: err,
+                    professors: array,
+                }),
+            ),
+        ),
+    );
+    const failedWrites = results.filter((res) => res.value instanceof Error);
+
     if (failedWrites.length > 0) {
+        const errorSet = new Set<Error>();
+        failedWrites.forEach((failure) => {
+            if (failure.value instanceof Error) {
+                errorSet.add(failure.value);
+            }
+        });
+        const errorString = Array(errorSet.values())
+            .map((err) => err.toString())
+            .join('\n');
         return {
             success: false,
-            message: 'Some batches failed',
-            data: results,
+            message: `These professors caused the following errors: ${errorString}`,
+            data: failedWrites.map((failures) => failures.professors).flat(),
         };
     }
     return {
         success: true,
         message: 'Writes successful',
-        data: results,
+        data: results.map((res) => res.professors).flat(),
     };
 }
