@@ -319,6 +319,9 @@ export async function writeOptions(options: WriteOptions) {
         }
     }
 
+    // write from this data quick to get, then writeRMP writes professors 10 at a time
+    const firstWriteResult = await writeProfessors(db, professorArray);
+
     if (options.rmp) {
         const writeRMPSuccess = await writeRMP({
             db: db,
@@ -343,6 +346,4 @@ export async function writeOptions(options: WriteOptions) {
         }
         return;
     }
-
-    return await writeProfessors(db, professorArray);
 }
