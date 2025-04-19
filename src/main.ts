@@ -54,8 +54,8 @@ type WriteOptions = {
 import { config } from 'dotenv';
 config();
 const TESTING = process.env.TESTING;
-const PROF_READ_LIMIT = process.env.TESTING;
-const RMP_ARRAY_LIMIT = process.env.TESTING;
+const PROF_READ_LIMIT = Number(process.env.TESTING);
+const RMP_ARRAY_LIMIT = Number(process.env.TESTING);
 const serviceAccount = {
     type: process.env.FIREBASE_TYPE,
     project_id: process.env.FIREBASE_PROJECT_ID,
