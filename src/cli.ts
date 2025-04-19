@@ -9,6 +9,7 @@ interface WriteOptionsArgs {
     mucourses: boolean;
     wikipedia: boolean;
     rmp: boolean;
+    rmpOverwrite: boolean;
 }
 // Parse CLI arguments
 const argv = yargs(hideBin(process.argv))
@@ -32,6 +33,11 @@ const argv = yargs(hideBin(process.argv))
         description: 'Include RateMyProfessors scraping',
         default: false,
     })
+    .option('rmpOverwrite', {
+        type: 'boolean',
+        description: 'Include RateMyProfessors scraping and overwrite data',
+        default: false,
+    })
     .help()
     .alias('help', 'h')
     .parseSync() as WriteOptionsArgs;
@@ -42,8 +48,13 @@ async function main() {
         mucourses: argv.mucourses,
         wikipedia: argv.wikipedia,
         rmp: argv.rmp,
+        rmpOverwrite: argv.rmpOverwrite,
     };
 
+    if (options.rmp && options.rmpOverwrite) {
+        console.log('Choose between rmp and rmpOverwrite');
+        process.exit(1);
+    }
     const selected =
         Object.entries(options)
             .filter(([_, value]) => value)
