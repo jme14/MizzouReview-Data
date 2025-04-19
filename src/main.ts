@@ -183,6 +183,7 @@ export async function searchRMP(
             oldBrowser,
             oldPage,
             shortProfessors,
+            innerBar,
         );
         if (!success) {
             innerBar.stop();
@@ -190,7 +191,6 @@ export async function searchRMP(
                 'Params invalid in searchRMP',
             );
         }
-        innerBar.increment();
     } catch (err) {
         // if params error, throw it upward
         if (err instanceof SearchRMPInvalidParamsError) {
@@ -216,6 +216,7 @@ export async function searchRMP(
         innerBar.stop();
         throw new SearchRMPCrashError('Retried and cannot load content.');
     }
+    innerBar.stop();
 }
 
 export interface WriteRMPOptions {
@@ -275,7 +276,7 @@ export async function writeRMP(options?: WriteRMPOptions) {
     // Create a multi bar instance
     const multibar = new cliProgress.MultiBar(
         {
-            clearOnComplete: false,
+            clearOnComplete: true,
             hideCursor: true,
             format: '{bar} | {percentage}% | {value}/{total} | {label}',
         },
@@ -283,10 +284,12 @@ export async function writeRMP(options?: WriteRMPOptions) {
     );
 
     // Create two progress bars
-    const outerBar = multibar.create(professorSubarrays.length, 0, {
-        label: 'Outer',
+    const outerBar = multibar.create(professorSubarrays.length - 1, 0, {
+        label: 'Professor Groups',
     });
-    const innerBar = multibar.create(RMP_ARRAY_LIMIT, 0, { label: 'Inner' });
+    const innerBar = multibar.create(RMP_ARRAY_LIMIT - 1, 0, {
+        label: 'Professors in Group',
+    });
     // progressBar.start(professorSubarrays.length, 0);
     for (let i = 0; i < professorSubarrays.length; i++) {
         try {
@@ -383,7 +386,10 @@ export async function writeOptions(options: WriteOptions) {
         } else {
             console.log('Failure writing RMP data...');
         }
-        return;
+        return {
+            success: true,
+            message: `Finished with settings ${options}`,
+        };
     } else if (options.rmpOverwrite) {
         const writeRMPSuccess = await writeRMP({
             db: db,
@@ -395,6 +401,9 @@ export async function writeOptions(options: WriteOptions) {
         } else {
             console.log('Failure writing RMP data...');
         }
-        return;
+        return {
+            success: true,
+            message: `Finished with settings ${options}`,
+        };
     }
 }
