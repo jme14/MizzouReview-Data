@@ -56,8 +56,8 @@ type WriteOptions = {
 import { config } from 'dotenv';
 config();
 const TESTING = process.env.TESTING;
-const PROF_READ_LIMIT = Number(process.env.TESTING);
-const RMP_ARRAY_LIMIT = Number(process.env.TESTING);
+const PROF_READ_LIMIT = parseInt(process.env.PROF_READ_LIMIT || '-1', 10);
+const RMP_ARRAY_LIMIT = parseInt(process.env.RMP_ARRAY_LIMIT || '-1', 10);
 const serviceAccount = {
     type: process.env.FIREBASE_TYPE,
     project_id: process.env.FIREBASE_PROJECT_ID,
@@ -320,27 +320,29 @@ export async function writeOptions(options: WriteOptions) {
         }
     }
 
-    // write from this data quick to get, then writeRMP writes professors 10 at a time
-    const firstWriteResult = await writeProfessors(db, professorArray);
-
-    if (!firstWriteResult.success) {
-        console.log(firstWriteResult.message);
-        firstWriteResult.data.forEach(console.log);
-        const { confirm } = await inquirer.prompt([
-            {
-                type: 'confirm',
-                name: 'confirm',
-                message: `Something has gone wrong in the first database write, do you wish to continue?`,
-                default: false,
-            },
-        ]);
-        if (!confirm) {
-            return {
-                success: false,
-                message: 'Failure after first write',
-            };
+    if (options.mucatalog || options.mucourses) {
+        // write from this data quick to get, then writeRMP writes professors 10 at a time
+        const firstWriteResult = await writeProfessors(db, professorArray);
+        if (!firstWriteResult.success) {
+            console.log(firstWriteResult.message);
+            firstWriteResult.data.forEach(console.log);
+            const { confirm } = await inquirer.prompt([
+                {
+                    type: 'confirm',
+                    name: 'confirm',
+                    message: `Something has gone wrong in the first database write, do you wish to continue?`,
+                    default: false,
+                },
+            ]);
+            if (!confirm) {
+                return {
+                    success: false,
+                    message: 'Failure after first write',
+                };
+            }
         }
     }
+
     if (options.rmp) {
         const writeRMPSuccess = await writeRMP({
             db: db,
