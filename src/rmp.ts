@@ -75,8 +75,7 @@ export async function getPage(options?: { headless: boolean }) {
     if (!options) {
         options = { headless: true };
     }
-    // const browser = await chromium.launch({ headless: false });
-    const browser = await chromium.launch();
+    const browser = await chromium.launch(options);
     const page = await browser.newPage();
     // await page.goto("https://www.ratemyprofessors.com/search/professors/", {waitUntil:"load", timeout:0})
     // await goToRMPStart(browser, page)
@@ -130,6 +129,13 @@ export async function fillSchool(browser: Browser, page: Page) {
     }
     await inputElements.fill('University of Missouri - Columbia');
     // console.log('Filling school name successful');
+
+    await page
+        .locator(
+            '[aria-label="School page for University of Missouri - Kansas City"]',
+        )
+        .click();
+
     return inputElements;
 }
 export async function navigateToProfListPage(
@@ -179,11 +185,14 @@ export async function navigateToFirstProfPage(
 
     const initialURL = page.url();
     for (let i = 0; i < allNameElements.length; i++) {
+        await allNameElements.at(i)?.focus();
+        await sleep(10);
         await allNameElements.at(i)?.click();
         await page.waitForLoadState('load');
         const finalURL = page.url();
         if (initialURL != finalURL) {
             // console.log('Navigating to first prof page success');
+            await sleep(5);
             return true;
         }
     }
