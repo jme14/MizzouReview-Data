@@ -1,7 +1,7 @@
 import { Browser, chromium, Page, Locator } from 'playwright';
 import { OperationCanceledException } from 'typescript';
 // import { Professor, Name, BasicInfo, SubjectiveMetrics } from 'mizzoureview-reading';
-
+import cliProgress from 'cli-progress';
 import {
     Professor,
     SubjectiveMetrics,
@@ -194,14 +194,11 @@ export async function navigateToFirstProfPage(
 
     const initialURL = page.url();
     for (let i = 0; i < allNameElements.length; i++) {
-        await allNameElements.at(i)?.focus();
-        await sleep(10);
         await allNameElements.at(i)?.click();
         await page.waitForLoadState('load');
         const finalURL = page.url();
         if (initialURL != finalURL) {
             // console.log('Navigating to first prof page success');
-            await sleep(5);
             return true;
         }
     }
@@ -465,6 +462,7 @@ export async function setProfessorSubjectiveMetricsLimited(
     browser: Browser,
     page: Page,
     professors: Professor[],
+    innerBar: cliProgress.SingleBar,
 ): Promise<Boolean> {
     if (professors.length > RMP_ARRAY_LIMIT) {
         console.log(
@@ -515,6 +513,7 @@ export async function setProfessorSubjectiveMetricsLimited(
                 profName,
             );
             professors[i].subjectiveMetrics = subjectiveMetrics;
+            innerBar.increment();
         } catch (err) {
             // console.log(err)
             // console.log(`No RMP page found for ${professors[i].basicInfo?.name.toString()}`)
