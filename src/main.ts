@@ -49,6 +49,7 @@ type WriteOptions = {
     mucourses?: boolean;
     wikipedia?: boolean;
     rmp?: boolean;
+    rmpOverwrite?: boolean;
 };
 
 import { config } from 'dotenv';
@@ -322,6 +323,18 @@ export async function writeOptions(options: WriteOptions) {
         const writeRMPSuccess = await writeRMP({
             db: db,
             professorArray: professorArray,
+        });
+        if (writeRMPSuccess) {
+            console.log('Success writing RMP data!');
+        } else {
+            console.log('Failure writing RMP data...');
+        }
+        return;
+    } else if (options.rmpOverwrite) {
+        const writeRMPSuccess = await writeRMP({
+            db: db,
+            professorArray: professorArray,
+            forceUpdateRecords: true,
         });
         if (writeRMPSuccess) {
             console.log('Success writing RMP data!');
