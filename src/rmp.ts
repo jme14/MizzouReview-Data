@@ -127,9 +127,18 @@ export async function fillSchool(browser: Browser, page: Page) {
     if (totalInputs.length > 1) {
         throw new OperationCanceledException();
     }
+    if (totalInputs.length == 0) {
+        return inputElements;
+    }
+    const inputElementsContent = await inputElements.textContent();
+
+    // if the content contain the university already, move on
+    if (inputElementsContent?.includes('University of Missouri - Columbia')) {
+        return inputElements;
+    }
+
     await inputElements.fill('University of Missouri - Columbia');
     // console.log('Filling school name successful');
-
     await page
         .locator(
             '[aria-label="School page for University of Missouri - Columbia"]',
@@ -422,10 +431,7 @@ export async function getSubjectiveMetricsFromProfessor(
         throw new Error('Prof name failed to fill in');
     }
 
-    const schoolInputElem = await fillSchool(browser, page);
-    if (!schoolInputElem) {
-        throw new Error('School name failed to fill in');
-    }
+    await fillSchool(browser, page);
 
     const profPageListSuccess = await navigateToProfListPage(
         browser,
