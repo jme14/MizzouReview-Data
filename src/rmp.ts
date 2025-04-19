@@ -14,14 +14,14 @@ config();
 const RMP_ARRAY_LIMIT = Number(process.env.RMP_ARRAY_LIMIT);
 
 export class RatingData {
-    quality: number;
-    difficulty: number;
-    comment: string;
-    tags: string[];
-    upvotes: number;
-    downvotes: number;
-    attendance?: boolean;
-    textbook?: boolean;
+    quality: number; // the number from the review
+    difficulty: number; // the number from the review
+    comment: string; // the words from the review
+    tags: string[]; // the list of tags from the review
+    upvotes: number; // upvote count
+    downvotes: number; // downvote count
+    attendance?: boolean; // undefined if not described, true if mandatory, false if not mandatory
+    textbook?: boolean; // undefined if not described, true if mandatory, false if not mandatory
 
     constructor(textArray: string[]) {
         this.quality = parseFloat(textArray[1]);
@@ -373,7 +373,7 @@ export function getTextbook(metrics: RatingData[]) {
     metrics.forEach((metric) => {
         if (metric.textbook == undefined) {
             textbookWriterCount--;
-        } else if (metric.attendance) {
+        } else if (metric.textbook) {
             textbookRequired++;
         }
     });
