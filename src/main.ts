@@ -55,7 +55,7 @@ type WriteOptions = {
 
 import { config } from 'dotenv';
 config();
-const TESTING = process.env.TESTING;
+const TESTING = process.env.TESTING === 'false' ? false : true;
 const PROF_READ_LIMIT = parseInt(process.env.PROF_READ_LIMIT || '-1', 10);
 const RMP_ARRAY_LIMIT = parseInt(process.env.RMP_ARRAY_LIMIT || '-1', 10);
 const serviceAccount = {
@@ -103,7 +103,6 @@ export async function initializeProfessorArrayFromDB() {
     // getting database information
     const app = initializeApp(firebaseConfig);
     const db: Firestore = getFirestore(app);
-
     const professorArray = TESTING
         ? await getSomeProfessors(db, PROF_READ_LIMIT)
         : await getAllProfessors(db);
