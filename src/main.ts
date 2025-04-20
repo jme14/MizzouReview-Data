@@ -38,7 +38,7 @@ import {
 import { getProfessorBasicInfo } from './mucatalog.js';
 import {
     getCoursesByProfessor,
-    setProfessorObjectiveMetrics,
+    setProfessorMUCoursesData,
 } from './mucourses.js';
 import { generateProfessorId } from './professorId.js';
 import { writeProfessors, WriteResult } from './database.js';
@@ -116,7 +116,7 @@ export async function initializeProfessorArrayFromDB() {
 export async function updateMUCourses(
     professorArray: Professor[],
 ): Promise<Boolean> {
-    return await setProfessorObjectiveMetrics(professorArray);
+    return await setProfessorMUCoursesData(professorArray);
 }
 /**
  * Writes to db professor array after getting professor array from database

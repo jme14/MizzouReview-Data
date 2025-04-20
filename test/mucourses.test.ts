@@ -3,8 +3,8 @@ import {
     getCourseArray,
     mucoursesData,
     getCoursesByProfessor,
-    getProfessorObjectiveMetrics,
-    setProfessorObjectiveMetrics,
+    getProfessorObjectiveMetricsAndTenure,
+    setProfessorMUCoursesData,
     getProfessorCourseMapFromCourseArray,
     getProfessorCourseMap,
 } from '../src/mucourses';
@@ -78,16 +78,16 @@ describe('API result handling', async () => {
         //console.log(results)
     });
     test('Testing known professor', async () => {
-        objectiveMetrics = getProfessorObjectiveMetrics(
+        const { objMet, tenure } = getProfessorObjectiveMetricsAndTenure(
             professorCourseMap,
             professor,
         );
-        console.log(objectiveMetrics);
-        expect(objectiveMetrics).toBeTruthy();
+        console.log(objMet);
+        expect(objMet).toBeTruthy();
     });
     test('Testing correct setting', async () => {
         expect(professor.objectiveMetrics).toBeFalsy();
-        const success = await setProfessorObjectiveMetrics([professor]);
+        const success = await setProfessorMUCoursesData([professor]);
         expect(success).toBeTruthy();
         expect(professor.objectiveMetrics).toBeTruthy();
         expect(professor.objectiveMetrics?.gpa).toBeGreaterThanOrEqual(0);
