@@ -357,7 +357,6 @@ export async function writeOptions(options: WriteOptions) {
         const firstWriteResult = await writeProfessors(db, professorArray);
         if (!firstWriteResult.success) {
             console.log(firstWriteResult.message);
-            firstWriteResult.data.forEach(console.log);
             const { confirm } = await inquirer.prompt([
                 {
                     type: 'confirm',
