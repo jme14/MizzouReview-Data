@@ -82,8 +82,13 @@ describe('API result handling', async () => {
             professorCourseMap,
             professor,
         );
-        console.log(objMet);
-        expect(objMet).toBeTruthy();
+        expect(objMet).toBeDefined();
+        expect(tenure).toBeDefined();
+        if (objMet !== undefined) {
+            objectiveMetrics = objMet;
+            console.log(objectiveMetrics);
+            expect(objectiveMetrics).toBeTruthy();
+        }
     });
     test('Testing correct setting', async () => {
         expect(professor.objectiveMetrics).toBeFalsy();
