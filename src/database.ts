@@ -18,7 +18,7 @@ import {
 
 import { config } from 'dotenv';
 config();
-const TESTING = process.env.TESTING;
+const TESTING = (process.env.TESTING === "false") ? false : true;
 
 export interface WriteResult {
     success: boolean;
