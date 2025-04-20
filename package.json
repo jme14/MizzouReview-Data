@@ -41,7 +41,7 @@
         "firebase": "^11.2.0",
         "firebase-admin": "^13.0.2",
         "inquirer": "^12.5.2",
-        "mizzoureview-reading": "^2.0.3",
+        "mizzoureview-reading": "^2.0.5",
         "module-alias": "^2.2.3",
         "playwright": "^1.51.0",
         "typescript": "^5.7.3",
