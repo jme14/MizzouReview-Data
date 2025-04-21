@@ -2,7 +2,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import inquirer from 'inquirer';
 
-import { writeOptions } from './main.js';
+import { writeOptions } from './writing/write.js';
 
 import { initializeDatabase } from './database/initializer.js';
 import { getDatabaseMetrics } from './database/reader.js';
