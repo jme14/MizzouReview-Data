@@ -51,14 +51,6 @@ import {
 } from './collection/rmp.js';
 import { Browser, Page } from 'playwright';
 
-type WriteOptions = {
-    mucatalog?: boolean;
-    mucourses?: boolean;
-    wikipedia?: boolean;
-    rmp?: boolean;
-    rmpOverwrite?: boolean;
-};
-
 import { config } from 'dotenv';
 config();
 const TESTING = process.env.TESTING === 'false' ? false : true;
@@ -98,13 +90,77 @@ export async function createProfessorsFromCatalog(): Promise<Professor[]> {
     return professorArray;
 }
 
-
 // this function accesses data from mucatalog, then puts data in the database
 // (just a wrapper over setProfessorObjectiveMetrics from mucourses module)
 export async function updateMUCourses(
     professorArray: Professor[],
 ): Promise<Boolean> {
     return await setProfessorMUCoursesData(professorArray);
+}
+
+interface WriteFastDataOptions {
+    mucourses: boolean;
+    mucatalog: boolean;
+}
+interface WriteFastDataResult {
+    success: boolean;
+    message: string;
+    professorArray: Professor[] | undefined;
+}
+export async function writeFastData(
+    db: Firestore,
+    options: WriteFastDataOptions,
+): Promise<WriteFastDataResult> {
+    if (!Object.values(options).some(Boolean)) {
+        return {
+            success: true,
+            message: 'No options passed in, nothing to be done',
+            professorArray: undefined,
+        };
+    }
+
+    let professorArray: Professor[];
+
+    // if getting new mucatalog info requested, do that
+    if (options.mucatalog) {
+        professorArray = await createProfessorsFromCatalog();
+        // otherwise, just read from the database
+    } else {
+        professorArray = await getProfessors(db);
+    }
+
+    if (options.mucourses) {
+        const mucoursesSuccess = await updateMUCourses(professorArray);
+        if (!mucoursesSuccess) {
+            throw new Error('Failure to update with mucourses data');
+        }
+    }
+
+    // write from this data quick to get, then writeRMP writes professors 10 at a time
+    const writeResult = await writeProfessors(db, professorArray);
+    if (!writeResult.success) {
+        console.log(writeResult.message);
+        const { confirm } = await inquirer.prompt([
+            {
+                type: 'confirm',
+                name: 'confirm',
+                message: `Something has gone wrong in the first database write, do you wish to continue?`,
+                default: false,
+            },
+        ]);
+        if (!confirm) {
+            return {
+                success: false,
+                message: 'Failure after first write',
+                professorArray: professorArray,
+            };
+        }
+    }
+    return {
+        success: true,
+        message: `Success with mucatalog: ${options.mucatalog} and mucourses: ${options.mucourses}`,
+        professorArray: professorArray,
+    };
 }
 
 /* this rmp section is going to be kinda stupid */
@@ -212,11 +268,11 @@ export async function writeRMP(options?: WriteRMPOptions) {
             ? false
             : options.forceUpdateRecords;
 
-    if (!db){
-        db = initializeDatabase()
+    if (!db) {
+        db = initializeDatabase();
     }
-    if (!professorArray){
-        professorArray = await getProfessors(db)
+    if (!professorArray) {
+        professorArray = await getProfessors(db);
     }
     if (!db || !professorArray) {
         return false;
@@ -296,6 +352,13 @@ export async function writeRMP(options?: WriteRMPOptions) {
     return true;
 }
 
+interface WriteOptions {
+    mucatalog: boolean;
+    mucourses: boolean;
+    wikipedia: boolean;
+    rmp: boolean;
+    rmpOverwrite: boolean;
+}
 // if running the entire module at once, call this function with all options enabled
 // more efficient than reading and writing for each submodule over and over
 // because this function only writes to db once after all interactions have been managed
@@ -308,45 +371,24 @@ export async function writeOptions(options: WriteOptions) {
         };
     }
 
-    let db: Firestore= initializeDatabase();
-    let professorArray: Professor[];
+    let db: Firestore = initializeDatabase();
+    const writeFastDataResult = await writeFastData(db, {
+        mucatalog: options.mucatalog,
+        mucourses: options.mucourses,
+    });
 
-    // if getting new mucatalog info requested, do that
-    if (options.mucatalog) {
-        professorArray = await createProfessorsFromCatalog();
-    // otherwise, just read from the database 
-    } else {
-        professorArray = await getProfessors(db)
+    if (
+        !writeFastDataResult.success ||
+        writeFastDataResult.professorArray === undefined
+    ) {
+        console.log(writeFastDataResult.professorArray);
+        console.log(writeFastDataResult.message);
+        return {
+            success: false,
+            message: 'Failure in writeFastData',
+        };
     }
-
-    if (options.mucourses) {
-        const mucoursesSuccess = await updateMUCourses(professorArray);
-        if (!mucoursesSuccess) {
-            throw new Error('Failure to update with mucourses data');
-        }
-    }
-
-    if (options.mucatalog || options.mucourses) {
-        // write from this data quick to get, then writeRMP writes professors 10 at a time
-        const firstWriteResult = await writeProfessors(db, professorArray);
-        if (!firstWriteResult.success) {
-            console.log(firstWriteResult.message);
-            const { confirm } = await inquirer.prompt([
-                {
-                    type: 'confirm',
-                    name: 'confirm',
-                    message: `Something has gone wrong in the first database write, do you wish to continue?`,
-                    default: false,
-                },
-            ]);
-            if (!confirm) {
-                return {
-                    success: false,
-                    message: 'Failure after first write',
-                };
-            }
-        }
-    }
+    let professorArray: Professor[] = writeFastDataResult.professorArray;
 
     if (options.rmp) {
         const writeRMPSuccess = await writeRMP({
@@ -358,10 +400,6 @@ export async function writeOptions(options: WriteOptions) {
         } else {
             console.log('Failure writing RMP data...');
         }
-        return {
-            success: true,
-            message: `Finished with settings ${options}`,
-        };
     } else if (options.rmpOverwrite) {
         const writeRMPSuccess = await writeRMP({
             db: db,
@@ -373,9 +411,9 @@ export async function writeOptions(options: WriteOptions) {
         } else {
             console.log('Failure writing RMP data...');
         }
-        return {
-            success: true,
-            message: `Finished with settings ${JSON.stringify(options)}`,
-        };
     }
+    return {
+        success: true,
+        message: `Finished with settings ${JSON.stringify(options)}`,
+    };
 }
