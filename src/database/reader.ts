@@ -49,9 +49,10 @@ export async function getNumberArrayMetrics(
     const maxCount = Math.max(...dataSet.values());
     const maxBarWidth = 50;
 
-    // Print the histogram
-    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-    console.log(`Graph: ${title}`);
+    // Print the histogram in Markdown-friendly format
+    console.log('### Graph: ' + title);
+    console.log('| Label            | Count | Bar |');
+    console.log('|------------------|-------|-----|');
 
     const printMap = new Map<number, string>();
 
@@ -60,12 +61,15 @@ export async function getNumberArrayMetrics(
         const bar = '█'.repeat(barLength);
         printMap.set(
             parseFloat(label),
-            `${label.padEnd(maxLabelLength)} | ${bar} (${count})`,
+            `| ${label.padEnd(maxLabelLength)} | ${count} | ${bar} |`,
         );
     }
 
-    console.log(printMap.get(NaN));
     const incrementor = 1 / Math.pow(10, decimalPlaces);
+    const result = printMap.get(NaN);
+    if (result !== undefined) {
+        console.log(result);
+    }
     for (
         let i = lowerRange;
         i <= higherRange;
@@ -77,7 +81,7 @@ export async function getNumberArrayMetrics(
         }
         console.log(printStatement);
     }
-    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n');
+    console.log('\n');
 }
 
 // this provides information about how many of each string there is
@@ -123,11 +127,21 @@ export async function getStringArrayMetrics(
         a === 'undefined' ? -1 : b === 'undefined' ? 1 : a.localeCompare(b),
     );
 
+    console.log('### Graph: ' + title);
+    console.log('| Label            | Count | Bar |');
+    console.log('|------------------|-------|-----|');
+
     for (const [label, count] of sortedEntries) {
         const barLength = Math.round((count / maxCount) * maxBarWidth);
         const bar = '█'.repeat(barLength);
-        console.log(`${label.padEnd(maxLabelLength)} | ${bar} (${count})`);
+        console.log(
+            `| ${label.padEnd(maxLabelLength)} | ${count
+                .toString()
+                .padStart(5)} | ${bar} |`,
+        );
     }
+
+    console.log('\n');
 }
 export async function getDatabaseMetrics(db: Firestore) {
     config();
@@ -183,181 +197,67 @@ export async function getDatabaseMetrics(db: Firestore) {
     });
 
     // 1. Basic Info (strings)
-    console.log('Basic Info:');
-    await getStringArrayMetrics(
-        departmentArray,
-        'Department (undefined included)',
-        true,
-    );
-    await getStringArrayMetrics(
-        departmentArray,
-        'Department (undefined not included)',
-        false,
-    );
-    await getStringArrayMetrics(
-        educationArray,
-        'Education (undefined included)',
-        true,
-    );
-    await getStringArrayMetrics(
-        educationArray,
-        'Education (undefined not included)',
-        false,
-    );
-    await getStringArrayMetrics(titleArray, 'Title (undefined included)', true);
-    await getStringArrayMetrics(
-        titleArray,
-        'Title (undefined not included)',
-        false,
-    );
+    console.log('## Basic Info:');
+    await getStringArrayMetrics(departmentArray, 'Department', true);
+    await getStringArrayMetrics(educationArray, 'Education', true);
+    await getStringArrayMetrics(titleArray, 'Title', true);
 
     // 2. Objective Metrics (numbers)
-    console.log('\nObjective Metrics:');
+    console.log('\n## Objective Metrics:');
+    await getNumberArrayMetrics(tenureArray, 0, 100, 0, 'Tenure', true);
+    await getNumberArrayMetrics(gpaArray, 0, 4, 1, 'GPA', true);
+    await getNumberArrayMetrics(confidenceArray, 0, 100, 0, 'Confidence', true);
+
+    // 3. Subjective Metrics (numbers)
+    console.log('\n## Subjective Metrics:');
+    await getNumberArrayMetrics(qualityArray, 0, 10, 0, 'Quality', true);
+    await getNumberArrayMetrics(difficultyArray, 0, 10, 0, 'Difficulty', true);
     await getNumberArrayMetrics(
-        tenureArray,
+        gradingIntensityArray,
         0,
-        100,
+        10,
         0,
-        'Tenure (undefined included)',
+        'Grading Intensity',
         true,
     );
-    await getNumberArrayMetrics(
-        tenureArray,
-        0,
-        100,
-        0,
-        'Tenure (undefined not included)',
-        false,
-    );
-    await getNumberArrayMetrics(
-        gpaArray,
-        0,
-        4,
-        2,
-        'GPA (undefined included)',
-        true,
-    );
-    await getNumberArrayMetrics(
-        gpaArray,
-        0,
-        4,
-        2,
-        'GPA (undefined not included)',
-        false,
-    );
+    await getNumberArrayMetrics(attendanceArray, 0, 10, 0, 'Attendance', true);
+    await getNumberArrayMetrics(textbookArray, 0, 10, 0, 'Textbook', true);
+    await getNumberArrayMetrics(polarizingArray, 0, 10, 0, 'Polarizing', true);
+
+    // === Now the `false` versions ===
+
+    // 1. Basic Info (strings)
+    console.log('## Basic Info:');
+    await getStringArrayMetrics(departmentArray, 'Department', false);
+    await getStringArrayMetrics(educationArray, 'Education', false);
+    await getStringArrayMetrics(titleArray, 'Title', false);
+
+    // 2. Objective Metrics (numbers)
+    console.log('\n## Objective Metrics:');
+    await getNumberArrayMetrics(tenureArray, 0, 100, 0, 'Tenure', false);
+    await getNumberArrayMetrics(gpaArray, 0, 4, 1, 'GPA', false);
     await getNumberArrayMetrics(
         confidenceArray,
         0,
         100,
         0,
-        'Confidence (undefined included)',
-        true,
-    );
-    await getNumberArrayMetrics(
-        confidenceArray,
-        0,
-        100,
-        0,
-        'Confidence (undefined not included)',
+        'Confidence',
         false,
     );
 
     // 3. Subjective Metrics (numbers)
-    console.log('\nSubjective Metrics:');
-    await getNumberArrayMetrics(
-        qualityArray,
-        0,
-        10,
-        0,
-        'Quality (undefined included)',
-        true,
-    );
-    await getNumberArrayMetrics(
-        qualityArray,
-        0,
-        10,
-        0,
-        'Quality (undefined not included)',
-        false,
-    );
-    await getNumberArrayMetrics(
-        difficultyArray,
-        0,
-        10,
-        0,
-        'Difficulty (undefined included)',
-        true,
-    );
-    await getNumberArrayMetrics(
-        difficultyArray,
-        0,
-        10,
-        0,
-        'Difficulty (undefined not included)',
-        false,
-    );
+    console.log('\n## Subjective Metrics:');
+    await getNumberArrayMetrics(qualityArray, 0, 10, 0, 'Quality', false);
+    await getNumberArrayMetrics(difficultyArray, 0, 10, 0, 'Difficulty', false);
     await getNumberArrayMetrics(
         gradingIntensityArray,
         0,
         10,
         0,
-        'Grading Intensity (undefined included)',
-        true,
-    );
-    await getNumberArrayMetrics(
-        gradingIntensityArray,
-        0,
-        10,
-        0,
-        'Grading Intensity (undefined not included)',
+        'Grading Intensity',
         false,
     );
-    await getNumberArrayMetrics(
-        attendanceArray,
-        0,
-        10,
-        0,
-        'Attendance (undefined included)',
-        true,
-    );
-    await getNumberArrayMetrics(
-        attendanceArray,
-        0,
-        10,
-        0,
-        'Attendance (undefined not included)',
-        false,
-    );
-    await getNumberArrayMetrics(
-        textbookArray,
-        0,
-        10,
-        0,
-        'Textbook (undefined included)',
-        true,
-    );
-    await getNumberArrayMetrics(
-        textbookArray,
-        0,
-        10,
-        0,
-        'Textbook (undefined not included)',
-        false,
-    );
-    await getNumberArrayMetrics(
-        polarizingArray,
-        0,
-        10,
-        0,
-        'Polarizing (undefined included)',
-        true,
-    );
-    await getNumberArrayMetrics(
-        polarizingArray,
-        0,
-        10,
-        0,
-        'Polarizing (undefined not included)',
-        false,
-    );
+    await getNumberArrayMetrics(attendanceArray, 0, 10, 0, 'Attendance', false);
+    await getNumberArrayMetrics(textbookArray, 0, 10, 0, 'Textbook', false);
+    await getNumberArrayMetrics(polarizingArray, 0, 10, 0, 'Polarizing', false);
 }
