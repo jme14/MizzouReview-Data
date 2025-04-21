@@ -182,7 +182,7 @@ export async function getDatabaseMetrics(db: Firestore) {
     // ai
     const letterToProfessorArray: (string | undefined)[] = [];
     const letterToStudentArray: (string | undefined)[] = [];
-    const funFactsArray: (string | undefined)[] = [];
+    const funFactsArray: (string[] | undefined)[] = [];
     professors.forEach((prof) => {
         // basic info
         departmentArray.push(prof.basicInfo?.department);
