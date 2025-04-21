@@ -6,13 +6,11 @@
     "type": "module",
     "scripts": {
         "build": "npx tsc",
-        "start": "node dist/main.js",
-        "dev": "npm run build && npm run start -- testing",
         "write": "npm run build && node dist/cli.js",
         "get-metrics": "npm run build && echo y | FORCE_COLOR=0 node dist/cli.js --databaseMetrics | sed -n '/Basic Info:/,$p' > database.md",
         "test-all": "npx vitest",
         "test-gemini": "npx vitest run test/gemini.test.ts",
-        "test-main": "npx vitest run test/main.test.ts",
+        "test-writing": "npx vitest run test/writing.test.ts",
         "test-mucourses": "npx vitest run test/mucourses.test.ts",
         "test-wikipedia": "npx vitest run test/wikipedia.test.ts",
         "test-mucatalog": "npx vitest run test/mucatalog.test.ts",
@@ -20,9 +18,7 @@
         "test-rmp-all": "npx vitest run test/rmp.test.ts",
         "test-rmp-parts": "npx vitest run test/rmp.test.ts -t=\"parts\" --bail 1",
         "test-rmp-one": "npx vitest run test/rmp.test.ts -t=\"one\"",
-        "test-rmp-many": "npx vitest run test/rmp.test.ts -t=\"many\" --bail 1",
-        "test-database": "npx vitest run test/database.test.ts",
-        "mucourses": "npm run build && node dist/mucourses.js"
+        "test-rmp-many": "npx vitest run test/rmp.test.ts -t=\"many\" --bail 1"
     },
     "repository": {
         "type": "git",
