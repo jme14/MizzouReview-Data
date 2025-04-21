@@ -99,15 +99,6 @@ export async function createProfessorsFromCatalog(): Promise<Professor[]> {
 }
 
 
-export async function initializeProfessorArrayFromDB() {
-    // getting database information
-    const db = initializeDatabase()
-    const professorArray = await getProfessors(db)
-    return {
-        db: db,
-        professorArray: professorArray,
-    };
-}
 // this function accesses data from mucatalog, then puts data in the database
 // (just a wrapper over setProfessorObjectiveMetrics from mucourses module)
 export async function updateMUCourses(
@@ -317,16 +308,15 @@ export async function writeOptions(options: WriteOptions) {
         };
     }
 
-    let db: Firestore;
+    let db: Firestore= initializeDatabase();
     let professorArray: Professor[];
 
     // if getting new mucatalog info requested, do that
     if (options.mucatalog) {
-        db = initializeDatabase()
         professorArray = await createProfessorsFromCatalog();
-        // otherwise, just read from the array
+    // otherwise, just read from the database 
     } else {
-        ({ db, professorArray } = await initializeProfessorArrayFromDB());
+        professorArray = await getProfessors(db)
     }
 
     if (options.mucourses) {
