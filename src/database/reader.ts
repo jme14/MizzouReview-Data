@@ -143,6 +143,18 @@ export async function getStringArrayMetrics(
 
     console.log('\n');
 }
+/**
+ * Abstracts away needing to make sure we're testing before reading from a database 
+ * @param db 
+ * @returns 
+ */
+export async function getProfessors(db: Firestore){
+    config()
+    const TESTING = process.env.TESTING === "false" ? false : true
+    const PROF_READ_LIMIT = process.env.PROF_READ_LIMIT !== undefined ? parseInt(process.env.PROF_READ_LIMIT) : 0
+    
+    return TESTING ? getSomeProfessors(db, PROF_READ_LIMIT) : getAllProfessors(db)
+}
 export async function getDatabaseMetrics(db: Firestore) {
     config();
     const professors = (process.env.TESTING === 'false' ? false : true)
