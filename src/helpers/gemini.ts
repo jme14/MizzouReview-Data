@@ -28,13 +28,13 @@ export async function generateAiInput(prompt: string){
     }
 }
 
-export async function generateWikiFunFacts(articleText: string){
-    const prompt = "You are an anthropologist focusing on education. This is a wikipedia page about a professor. Give me your top 5 most interesting facts about this professor, responding with a max of 5 words per fact, with only the facts in your response, in a silly tone like hashtags without pound signs. Here is the wikipedia page: " + articleText + "If there is no wikipedia page provided here, please respond with 'There is no Wikipedia page to pull from'";
+export async function generateWikiFunFacts(articleText: string): Promise<string[] | undefined>{
+    const prompt = "You are an anthropologist focusing on education. This is a wikipedia page about a professor. Give me your top 5 most interesting facts about this professor, responding with a max of 5 words per fact, with only the facts in your response, in a silly tone like hashtags without pound signs. Separate each fact with a newline, include no punctuation at the end of the fact. Here is the wikipedia page: " + articleText + "If there is no wikipedia page provided here, please respond with 'There is no Wikipedia page to pull from'";
     const generatedText = await generateAiInput(prompt);
 
     if (generatedText) {
         //console.log("Fun Facts Response: ", generatedText);
-        return generatedText;
+        return generatedText.trim().split("\n");
     }
 
 }
