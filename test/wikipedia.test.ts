@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { getArticleContentByName } from '../src/wikipedia';
+import { getArticleContentByName } from '../src/collection/wikipedia';
 import { Name } from 'mizzoureview-reading/models/name';
 
 describe('Checking api call works', () => {

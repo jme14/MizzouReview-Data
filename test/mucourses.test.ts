@@ -7,7 +7,7 @@ import {
     setProfessorMUCoursesData,
     getProfessorCourseMapFromCourseArray,
     getProfessorCourseMap,
-} from '../src/mucourses';
+} from '../src/collection/mucourses';
 import {
     ObjectiveMetrics,
     BasicInfo,

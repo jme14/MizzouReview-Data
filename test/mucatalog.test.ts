@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { BasicInfo } from 'mizzoureview-reading/models/professor';
-import { getProfessorBasicInfo } from '../src/mucatalog';
+import { getProfessorBasicInfo } from '../src/collection/mucatalog';
 
 describe('getProfessorBasicInfo', async () => {
     let bI: BasicInfo[];

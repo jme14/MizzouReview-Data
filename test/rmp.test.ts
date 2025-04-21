@@ -18,7 +18,7 @@ import {
     getPolarization,
     getSubjectiveMetricsFromProfessor,
     goToRMPStart,
-} from '../src/rmp';
+} from '../src/collection/rmp';
 import { Browser, Page, Locator } from 'playwright';
 import { Name } from 'mizzoureview-reading/models/name';
 
