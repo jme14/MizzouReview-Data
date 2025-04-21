@@ -4,12 +4,16 @@ import inquirer from 'inquirer';
 
 import { writeOptions } from './main.js';
 
+import { initializeDatabase } from './database/initializer.js';
+import { getDatabaseMetrics } from './database/reader.js';
+import { Firestore } from 'firebase-admin/firestore';
 interface WriteOptionsArgs {
     mucatalog: boolean;
     mucourses: boolean;
     wikipedia: boolean;
     rmp: boolean;
     rmpOverwrite: boolean;
+    databaseMetrics: boolean;
 }
 // Parse CLI arguments
 const argv = yargs(hideBin(process.argv))
@@ -38,6 +42,11 @@ const argv = yargs(hideBin(process.argv))
         description: 'Include RateMyProfessors scraping and overwrite data',
         default: false,
     })
+    .option('databaseMetrics', {
+        type: 'boolean',
+        description: 'Read database and get data from it',
+        default: false,
+    })
     .help()
     .alias('help', 'h')
     .parseSync() as WriteOptionsArgs;
@@ -49,6 +58,7 @@ async function main() {
         wikipedia: argv.wikipedia,
         rmp: argv.rmp,
         rmpOverwrite: argv.rmpOverwrite,
+        databaseMetrics: argv.databaseMetrics,
     };
 
     if (options.rmp && options.rmpOverwrite) {
@@ -75,6 +85,12 @@ async function main() {
         process.exit(0);
     }
 
+    if (options.databaseMetrics) {
+        const db: Firestore = initializeDatabase();
+        console.log('\n');
+        await getDatabaseMetrics(db);
+        process.exit(0);
+    }
     try {
         const result = await writeOptions(options);
         console.log('✔ Success:', result);
