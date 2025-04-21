@@ -35,14 +35,18 @@ import {
     getSomeProfessors,
 } from 'mizzoureview-reading/database-admin';
 
-import { getProfessorBasicInfo } from './mucatalog.js';
+import { getProfessorBasicInfo } from './collection/mucatalog.js';
 import {
     getCoursesByProfessor,
     setProfessorMUCoursesData,
-} from './mucourses.js';
-import { generateProfessorId } from './professorId.js';
-import { writeProfessors, WriteResult } from './database.js';
-import { getPage, setProfessorSubjectiveMetricsLimited, sleep } from './rmp.js';
+} from './collection/mucourses.js';
+import { generateProfessorId } from './helpers/professorId.js';
+import { writeProfessors, WriteResult } from './database/writer.js';
+import {
+    getPage,
+    setProfessorSubjectiveMetricsLimited,
+    sleep,
+} from './collection/rmp.js';
 import { Browser, Page } from 'playwright';
 
 type WriteOptions = {
