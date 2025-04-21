@@ -10,6 +10,7 @@
         "get-metrics": "npm run build && echo y | FORCE_COLOR=0 node dist/cli.js --databaseMetrics | sed -n '/Basic Info:/,$p' > database.md",
         "test-all": "npx vitest",
         "test-gemini": "npx vitest run test/gemini.test.ts",
+        "test-reader": "npx vitest run test/reader.test.ts",
         "test-writing": "npx vitest run test/writing.test.ts",
         "test-mucourses": "npx vitest run test/mucourses.test.ts",
         "test-wikipedia": "npx vitest run test/wikipedia.test.ts",
