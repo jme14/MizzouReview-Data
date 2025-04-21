@@ -9,6 +9,7 @@
         "start": "node dist/main.js",
         "dev": "npm run build && npm run start -- testing",
         "write": "npm run build && node dist/cli.js",
+        "get-metrics": "npm run build && echo y | FORCE_COLOR=0 node dist/cli.js --databaseMetrics | sed -n '/Basic Info:/,$p' > database.md",
         "test-all": "npx vitest",
         "test-main": "npx vitest run test/main.test.ts",
         "test-mucourses": "npx vitest run test/mucourses.test.ts",
@@ -50,6 +51,7 @@
     },
     "devDependencies": {
         "@tsconfig/node22": "^22.0.0",
+        "@types/asciichart": "^1.5.8",
         "@types/cli-progress": "^3.11.6",
         "@types/inquirer": "^9.0.7",
         "@types/yargs": "^17.0.33",
