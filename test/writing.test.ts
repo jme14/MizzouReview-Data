@@ -5,10 +5,11 @@ import { Professor } from 'mizzoureview-reading/models/professor';
 import {
     createProfessorsFromCatalog,
     updateMUCourses,
-    writeRMP,
-} from '../src/main';
+} from '../src/writing/writefastdata';
 
-describe('professor object management', () => {
+import { writeRMP } from '../src/writing/writermp';
+
+describe('fast write modules', () => {
     let mucatalogProfessorArray: Professor[];
     let mucoursesProfessorArray: Professor[];
 
@@ -36,7 +37,7 @@ describe('professor object management', () => {
     });
 });
 
-describe.skip('writing to database functions', () => {
+describe.skip('slow write modules', () => {
     test('writeRMP', { timeout: 6_000_0000 }, async () => {
         await writeRMP();
     });
