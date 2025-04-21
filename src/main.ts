@@ -35,12 +35,14 @@ import {
     getSomeProfessors,
 } from 'mizzoureview-reading/database-admin';
 
+import { getProfessors } from './database/reader.js';
 import { getProfessorBasicInfo } from './collection/mucatalog.js';
 import {
     getCoursesByProfessor,
     setProfessorMUCoursesData,
 } from './collection/mucourses.js';
 import { generateProfessorId } from './helpers/professorId.js';
+import { initializeDatabase } from './database/initializer.js';
 import { writeProfessors, WriteResult } from './database/writer.js';
 import {
     getPage,
@@ -62,6 +64,7 @@ config();
 const TESTING = process.env.TESTING === 'false' ? false : true;
 const PROF_READ_LIMIT = parseInt(process.env.PROF_READ_LIMIT || '-1', 10);
 const RMP_ARRAY_LIMIT = parseInt(process.env.RMP_ARRAY_LIMIT || '-1', 10);
+/* 
 const serviceAccount = {
     type: process.env.FIREBASE_TYPE,
     project_id: process.env.FIREBASE_PROJECT_ID,
@@ -79,8 +82,10 @@ const serviceAccount = {
 const firebaseConfig = {
     credential: cert(serviceAccount),
 };
+*/
 
 // this scrapes mufaculty to get the information which creates professor objects
+/* THIS CREATES */
 export async function createProfessorsFromCatalog(): Promise<Professor[]> {
     let professorBasicInfo = await getProfessorBasicInfo();
     const professorArray: Professor[] = [];
@@ -93,23 +98,11 @@ export async function createProfessorsFromCatalog(): Promise<Professor[]> {
     return professorArray;
 }
 
-// this function scrapes mucatalog, then puts the data in the database
-export async function writeMUCatalog() {
-    // getting database information
-    const app = initializeApp(firebaseConfig);
-    const db: Firestore = getFirestore(app);
-
-    const professorArray = await createProfessorsFromCatalog();
-    return await writeProfessors(db, professorArray);
-}
 
 export async function initializeProfessorArrayFromDB() {
     // getting database information
-    const app = initializeApp(firebaseConfig);
-    const db: Firestore = getFirestore(app);
-    const professorArray = TESTING
-        ? await getSomeProfessors(db, PROF_READ_LIMIT)
-        : await getAllProfessors(db);
+    const db = initializeDatabase()
+    const professorArray = await getProfessors(db)
     return {
         db: db,
         professorArray: professorArray,
@@ -122,24 +115,8 @@ export async function updateMUCourses(
 ): Promise<Boolean> {
     return await setProfessorMUCoursesData(professorArray);
 }
-/**
- * Writes to db professor array after getting professor array from database
- * throws error on failure
- * @returns
- */
-export async function writeMUCourses() {
-    const { db, professorArray } = await initializeProfessorArrayFromDB();
-    const mucoursesSuccess = await updateMUCourses(professorArray);
-
-    if (!mucoursesSuccess) {
-        throw new Error('Failed to update professors with mucourses data');
-    }
-
-    return await writeProfessors(db, professorArray);
-}
 
 /* this rmp section is going to be kinda stupid */
-
 export function filterProfessorsForRMP(
     professors: Professor[],
     forceUpdateAllRecords: Boolean,
@@ -244,8 +221,11 @@ export async function writeRMP(options?: WriteRMPOptions) {
             ? false
             : options.forceUpdateRecords;
 
-    if (!db && !professorArray) {
-        ({ db, professorArray } = await initializeProfessorArrayFromDB());
+    if (!db){
+        db = initializeDatabase()
+    }
+    if (!professorArray){
+        professorArray = await getProfessors(db)
     }
     if (!db || !professorArray) {
         return false;
@@ -342,7 +322,7 @@ export async function writeOptions(options: WriteOptions) {
 
     // if getting new mucatalog info requested, do that
     if (options.mucatalog) {
-        db = getFirestore(initializeApp(firebaseConfig));
+        db = initializeDatabase()
         professorArray = await createProfessorsFromCatalog();
         // otherwise, just read from the array
     } else {
