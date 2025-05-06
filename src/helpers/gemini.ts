@@ -40,12 +40,18 @@ export async function generateWikiFunFacts(articleText: string): Promise<string[
 }
 
 export async function generateStudentLetter(allResponses: string[]){ //need to import from rmp.ts, but also need to see how we want to do it
-    const prompt = "You are an inquisitive student having just read these reviews about the same professor being discussed in each review. Write a letter to other students, in 100 words or less, about what to expect from them, without including an opening or your name, using only them/them pronouns when referencing the professor: " + allResponses.join(". ") + "If there are no reviews listed here, please respond with 'There are not enough reviews available for letter creation'";
+    const prompt = "You are an inquisitive student having just read these reviews about the same professor being discussed in each review. Write a letter to other students, in 100 words or less, about what to expect from them, without including an opening or your name, using only they/them pronouns when referencing the professor: " + allResponses.join(". ") + "If there are no reviews listed here, please respond with 'There are not enough reviews available for letter creation'";
     const generatedText = await generateAiInput(prompt);
 
     if (generatedText) {
         //console.log("Letter To Students: ", generatedText);
-        return generatedText;
+        const correctGeneratedText = generatedText.replace(/[\n\t\r\f\v]/g, '');
+
+        return correctGeneratedText;
+        
+    }
+    else{
+        return "Unable to retrieve student letter";
     }
 }
 
@@ -55,6 +61,11 @@ export async function generateProfessorLetter(allResponses: string[]){ //need to
 
     if (generatedText) {
         //console.log("Letter To Professor: ", generatedText);
-        return generatedText;
+        const correctGeneratedText = generatedText.replace(/[\n\t\r\f\v]/g, '');
+
+        return correctGeneratedText;
+    }
+    else{
+        return "Unable to retrieve professor letter";
     }
 }
