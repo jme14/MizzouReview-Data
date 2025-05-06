@@ -8,6 +8,8 @@ import {
 } from 'mizzoureview-reading/models/professor';
 
 import { Name } from 'mizzoureview-reading/models/name';
+import { generateStudentLetter } from 'src/helpers/gemini.js';
+import { generateProfessorLetter } from 'src/helpers/gemini.js';
 
 import { config } from 'dotenv';
 config();
@@ -400,6 +402,24 @@ export function getPolarization(metrics: RatingData[]) {
 
     return standarddeviation * 5;
 }
+
+export async function getProfLetter(metrics: RatingData[]){
+    const comments = metrics.map((metric) => metric.comment);
+
+    const profLetter = await generateProfessorLetter(comments);
+    
+    return profLetter;
+
+}
+
+export async function getStudentLetter(metrics: RatingData[]){
+    const comments = metrics.map((metric) => metric.comment);
+
+    const studentLetter = await generateStudentLetter(comments);
+    
+    return studentLetter;
+}
+
 export function getSubjectiveMetrics(metrics: RatingData[]): SubjectiveMetrics {
     const quality = getQuality(metrics);
     const difficulty = getDifficulty(metrics);
@@ -407,6 +427,7 @@ export function getSubjectiveMetrics(metrics: RatingData[]): SubjectiveMetrics {
     const attendance = getAttendance(metrics);
     const textbook = getTextbook(metrics);
     const polarization = getPolarization(metrics);
+
     return new SubjectiveMetrics({
         quality: quality,
         difficulty: difficulty,
@@ -421,7 +442,7 @@ export async function getSubjectiveMetricsFromProfessor(
     browser: Browser,
     page: Page,
     name: Name,
-): Promise<SubjectiveMetrics | undefined> {
+): Promise<[SubjectiveMetrics, string, string] | undefined> {
     await goToRMPStart(browser, page);
     const profInputElem = await fillProfName(browser, page, name);
     if (!profInputElem) {
@@ -455,7 +476,9 @@ export async function getSubjectiveMetricsFromProfessor(
 
     const metrics = await getAllComments(browser, page);
     const subjectiveMetrics = getSubjectiveMetrics(metrics);
-    return subjectiveMetrics;
+    const studentLetter = await getStudentLetter(metrics);
+    const professorLetter = await getProfLetter(metrics);
+    return [subjectiveMetrics, studentLetter, professorLetter];
 }
 
 export async function setProfessorSubjectiveMetricsLimited(
@@ -499,7 +522,7 @@ export async function setProfessorSubjectiveMetricsLimited(
     );
     if (invalidProfessors.length > 0) {
         console.log(
-            'WARNING: make sure professors have an id before passing into function',
+            'WARNING: make sure professors have a gpa before passing into function',
         );
         return false;
     }
@@ -512,8 +535,16 @@ export async function setProfessorSubjectiveMetricsLimited(
                 page,
                 profName,
             );
-            professors[i].subjectiveMetrics = subjectiveMetrics;
-            innerBar.increment();
+
+            if(subjectiveMetrics){
+                const[SubjectiveMetrics, studentLetter, professorLetter] = subjectiveMetrics;
+                professors[i].subjectiveMetrics = SubjectiveMetrics;
+                professors[i].aIPromptAnswers!.letterToStudent = studentLetter;
+                professors[i].aIPromptAnswers!.letterToProfessor = professorLetter;
+
+                innerBar.increment();
+            }
+            
         } catch (err) {
             // console.log(err)
             // console.log(`No RMP page found for ${professors[i].basicInfo?.name.toString()}`)
