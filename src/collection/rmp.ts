@@ -197,7 +197,7 @@ export async function navigateToFirstProfPage(
 
     const initialURL = page.url();
     for (let i = 0; i < allNameElements.length; i++) {
-        await allNameElements.at(i)?.click({ timeout: 15000 });
+        await allNameElements.at(i)?.click({ timeout: 3000 });
         await page.waitForLoadState('load');
         const finalURL = page.url();
         if (initialURL != finalURL) {
@@ -555,7 +555,13 @@ export async function setProfessorSubjectiveMetricsLimited(
                 }
             }
         } catch (err: any) {
-            if (err.name !== 'TimeoutError') {
+            if (
+                err.message ===
+                'Fun facts must be an array of length 5 for each fun fact'
+            ) {
+                console.log('Invalid professor object found:');
+                console.log(professors[i]);
+            } else if (err.name !== 'TimeoutError') {
                 console.log('WARNING: AN UNKNOWN ERROR TOOK PLACE');
                 console.log(err);
             }
