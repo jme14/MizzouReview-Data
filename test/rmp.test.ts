@@ -32,7 +32,7 @@ describe('parts', () => {
     let ratingData: RatingData[];
 
     beforeAll(async () => {
-        ({ browser, page } = await getPage({ headless: false }));
+        ({ browser, page } = await getPage({ headless: true }));
     });
 
     afterAll(async () => {

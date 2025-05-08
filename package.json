@@ -15,7 +15,6 @@
         "test-mucourses": "npx vitest run test/mucourses.test.ts",
         "test-wikipedia": "npx vitest run test/wikipedia.test.ts",
         "test-mucatalog": "npx vitest run test/mucatalog.test.ts",
-        "test-name": "npx vitest run test/models/name.test.ts",
         "test-rmp-all": "npx vitest run test/rmp.test.ts",
         "test-rmp-parts": "npx vitest run test/rmp.test.ts -t=\"parts\" --bail 1",
         "test-rmp-one": "npx vitest run test/rmp.test.ts -t=\"one\"",
