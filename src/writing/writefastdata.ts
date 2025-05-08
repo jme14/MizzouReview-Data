@@ -52,14 +52,6 @@ export async function writeFastData(
     db: Firestore,
     options: WriteFastDataOptions,
 ): Promise<WriteFastDataResult> {
-    if (!Object.values(options).some(Boolean)) {
-        return {
-            success: true,
-            message: 'No options passed in, nothing to be done',
-            professorArray: undefined,
-        };
-    }
-
     let professorArray: Professor[];
 
     // if getting new mucatalog info requested, do that
@@ -68,6 +60,14 @@ export async function writeFastData(
         // otherwise, just read from the database
     } else {
         professorArray = await getProfessors(db);
+    }
+
+    if (!Object.values(options).some(Boolean)) {
+        return {
+            success: true,
+            message: 'No options passed in, nothing to be done',
+            professorArray: professorArray,
+        };
     }
 
     if (options.mucourses) {
