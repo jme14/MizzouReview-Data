@@ -18,7 +18,7 @@ import {
 
 import { config } from 'dotenv';
 
-export async function getNumberArrayMetrics(
+export function getNumberArrayMetrics(
     arr: (number | undefined)[],
     lowerRange: number,
     higherRange: number,
@@ -85,7 +85,7 @@ export async function getNumberArrayMetrics(
 }
 
 // this provides information about how many of each string there is
-export async function getStringArrayMetrics(
+export function getStringArrayMetrics(
     arr: (string | undefined)[],
     title?: string,
     showUndefined?: boolean,
@@ -143,17 +143,63 @@ export async function getStringArrayMetrics(
 
     console.log('\n');
 }
+
+export function getFunFactsArrayMetrics(arr: [string[] | undefined, string][]) {
+    const populatedFunFacts = arr.filter((facts) => facts[0] !== undefined);
+
+    console.log('### Fun Fact Gathering Information');
+    console.log(
+        `Fun facts are ${
+            (populatedFunFacts.length * 100) / arr.length
+        }% populated.`,
+    );
+
+    let invalidFunFactCount = 0;
+    let invalidFunFactIds = [];
+    let zeroFunFactCount = 0;
+    let zeroFunFactIds = [];
+    for (const funFacts of populatedFunFacts) {
+        if (funFacts[0]!.length === 0) {
+            zeroFunFactCount++;
+            zeroFunFactIds.push(funFacts[1]);
+            continue;
+        }
+        if (funFacts[0]!.length !== 5) {
+            invalidFunFactCount++;
+            invalidFunFactIds.push(funFacts[1]);
+        }
+    }
+
+    console.log(
+        `Populated fun facts have ${invalidFunFactCount} invalid fact count and ${zeroFunFactCount} with an empty array.\n`,
+    );
+
+    if (invalidFunFactIds.length > 0) {
+        console.log('The following IDs contain invalid data.');
+        invalidFunFactIds.forEach(console.log);
+    }
+
+    if (zeroFunFactIds.length > 0) {
+        console.log('The following IDs contain empty arrays.');
+        zeroFunFactIds.forEach(console.log);
+    }
+}
 /**
- * Abstracts away needing to make sure we're testing before reading from a database 
- * @param db 
- * @returns 
+ * Abstracts away needing to make sure we're testing before reading from a database
+ * @param db
+ * @returns
  */
-export async function getProfessors(db: Firestore){
-    config()
-    const TESTING = process.env.TESTING === "false" ? false : true
-    const PROF_READ_LIMIT = process.env.PROF_READ_LIMIT !== undefined ? parseInt(process.env.PROF_READ_LIMIT) : 0
-    
-    return TESTING ? getSomeProfessors(db, PROF_READ_LIMIT) : getAllProfessors(db)
+export async function getProfessors(db: Firestore) {
+    config();
+    const TESTING = process.env.TESTING === 'false' ? false : true;
+    const PROF_READ_LIMIT =
+        process.env.PROF_READ_LIMIT !== undefined
+            ? parseInt(process.env.PROF_READ_LIMIT)
+            : 0;
+
+    return TESTING
+        ? getSomeProfessors(db, PROF_READ_LIMIT)
+        : getAllProfessors(db);
 }
 export async function getDatabaseMetrics(db: Firestore) {
     config();
@@ -182,8 +228,9 @@ export async function getDatabaseMetrics(db: Firestore) {
     // ai
     const letterToProfessorArray: (string | undefined)[] = [];
     const letterToStudentArray: (string | undefined)[] = [];
-    const funFactsArray: (string[] | undefined)[] = [];
+    const funFactsArray: [string[] | undefined, string][] = [];
     professors.forEach((prof) => {
+        console.log(prof);
         // basic info
         departmentArray.push(prof.basicInfo?.department);
         educationArray.push(prof.basicInfo?.education);
@@ -205,26 +252,26 @@ export async function getDatabaseMetrics(db: Firestore) {
         // ai prompts
         letterToProfessorArray.push(prof.aIPromptAnswers?.letterToProfessor);
         letterToStudentArray.push(prof.aIPromptAnswers?.letterToStudent);
-        funFactsArray.push(prof.aIPromptAnswers?.funFacts);
+        funFactsArray.push([prof.aIPromptAnswers?.funFacts, prof.professorId]);
     });
 
     // 1. Basic Info (strings)
     console.log('## Basic Info:');
-    await getStringArrayMetrics(departmentArray, 'Department', true);
-    await getStringArrayMetrics(educationArray, 'Education', true);
-    await getStringArrayMetrics(titleArray, 'Title', true);
+    getStringArrayMetrics(departmentArray, 'Department', true);
+    getStringArrayMetrics(educationArray, 'Education', true);
+    getStringArrayMetrics(titleArray, 'Title', true);
 
     // 2. Objective Metrics (numbers)
     console.log('\n## Objective Metrics:');
-    await getNumberArrayMetrics(tenureArray, 0, 100, 0, 'Tenure', true);
-    await getNumberArrayMetrics(gpaArray, 0, 4, 1, 'GPA', true);
-    await getNumberArrayMetrics(confidenceArray, 0, 100, 0, 'Confidence', true);
+    getNumberArrayMetrics(tenureArray, 0, 100, 0, 'Tenure', true);
+    getNumberArrayMetrics(gpaArray, 0, 4, 1, 'GPA', true);
+    getNumberArrayMetrics(confidenceArray, 0, 100, 0, 'Confidence', true);
 
     // 3. Subjective Metrics (numbers)
     console.log('\n## Subjective Metrics:');
-    await getNumberArrayMetrics(qualityArray, 0, 10, 0, 'Quality', true);
-    await getNumberArrayMetrics(difficultyArray, 0, 10, 0, 'Difficulty', true);
-    await getNumberArrayMetrics(
+    getNumberArrayMetrics(qualityArray, 0, 10, 0, 'Quality', true);
+    getNumberArrayMetrics(difficultyArray, 0, 10, 0, 'Difficulty', true);
+    getNumberArrayMetrics(
         gradingIntensityArray,
         0,
         10,
@@ -232,36 +279,31 @@ export async function getDatabaseMetrics(db: Firestore) {
         'Grading Intensity',
         true,
     );
-    await getNumberArrayMetrics(attendanceArray, 0, 10, 0, 'Attendance', true);
-    await getNumberArrayMetrics(textbookArray, 0, 10, 0, 'Textbook', true);
-    await getNumberArrayMetrics(polarizingArray, 0, 10, 0, 'Polarizing', true);
+    getNumberArrayMetrics(attendanceArray, 0, 10, 0, 'Attendance', true);
+    getNumberArrayMetrics(textbookArray, 0, 10, 0, 'Textbook', true);
+    getNumberArrayMetrics(polarizingArray, 0, 10, 0, 'Polarizing', true);
 
+    getFunFactsArrayMetrics(funFactsArray);
     // === Now the `false` versions ===
 
+    /* 
     // 1. Basic Info (strings)
     console.log('## Basic Info:');
-    await getStringArrayMetrics(departmentArray, 'Department', false);
-    await getStringArrayMetrics(educationArray, 'Education', false);
-    await getStringArrayMetrics(titleArray, 'Title', false);
+    getStringArrayMetrics(departmentArray, 'Department', false);
+    getStringArrayMetrics(educationArray, 'Education', false);
+    getStringArrayMetrics(titleArray, 'Title', false);
 
     // 2. Objective Metrics (numbers)
     console.log('\n## Objective Metrics:');
-    await getNumberArrayMetrics(tenureArray, 0, 100, 0, 'Tenure', false);
-    await getNumberArrayMetrics(gpaArray, 0, 4, 1, 'GPA', false);
-    await getNumberArrayMetrics(
-        confidenceArray,
-        0,
-        100,
-        0,
-        'Confidence',
-        false,
-    );
+    getNumberArrayMetrics(tenureArray, 0, 100, 0, 'Tenure', false);
+    getNumberArrayMetrics(gpaArray, 0, 4, 1, 'GPA', false);
+    getNumberArrayMetrics(confidenceArray, 0, 100, 0, 'Confidence', false);
 
     // 3. Subjective Metrics (numbers)
     console.log('\n## Subjective Metrics:');
-    await getNumberArrayMetrics(qualityArray, 0, 10, 0, 'Quality', false);
-    await getNumberArrayMetrics(difficultyArray, 0, 10, 0, 'Difficulty', false);
-    await getNumberArrayMetrics(
+    getNumberArrayMetrics(qualityArray, 0, 10, 0, 'Quality', false);
+    getNumberArrayMetrics(difficultyArray, 0, 10, 0, 'Difficulty', false);
+    getNumberArrayMetrics(
         gradingIntensityArray,
         0,
         10,
@@ -269,7 +311,8 @@ export async function getDatabaseMetrics(db: Firestore) {
         'Grading Intensity',
         false,
     );
-    await getNumberArrayMetrics(attendanceArray, 0, 10, 0, 'Attendance', false);
-    await getNumberArrayMetrics(textbookArray, 0, 10, 0, 'Textbook', false);
-    await getNumberArrayMetrics(polarizingArray, 0, 10, 0, 'Polarizing', false);
+    getNumberArrayMetrics(attendanceArray, 0, 10, 0, 'Attendance', false);
+    getNumberArrayMetrics(textbookArray, 0, 10, 0, 'Textbook', false);
+    getNumberArrayMetrics(polarizingArray, 0, 10, 0, 'Polarizing', false);
+    */
 }
