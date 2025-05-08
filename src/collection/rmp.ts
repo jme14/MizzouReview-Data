@@ -3,6 +3,7 @@ import { OperationCanceledException } from 'typescript';
 // import { Professor, Name, BasicInfo, SubjectiveMetrics } from 'mizzoureview-reading';
 import cliProgress from 'cli-progress';
 import {
+    AIPromptAnswers,
     Professor,
     SubjectiveMetrics,
 } from 'mizzoureview-reading/models/professor';
@@ -403,20 +404,19 @@ export function getPolarization(metrics: RatingData[]) {
     return standarddeviation * 5;
 }
 
-export async function getProfLetter(metrics: RatingData[]){
+export async function getProfLetter(metrics: RatingData[]) {
     const comments = metrics.map((metric) => metric.comment);
 
     const profLetter = await generateProfessorLetter(comments);
-    
-    return profLetter;
 
+    return profLetter;
 }
 
-export async function getStudentLetter(metrics: RatingData[]){
+export async function getStudentLetter(metrics: RatingData[]) {
     const comments = metrics.map((metric) => metric.comment);
 
     const studentLetter = await generateStudentLetter(comments);
-    
+
     return studentLetter;
 }
 
@@ -536,15 +536,26 @@ export async function setProfessorSubjectiveMetricsLimited(
                 profName,
             );
 
-            if(subjectiveMetrics){
-                const[SubjectiveMetrics, studentLetter, professorLetter] = subjectiveMetrics;
+            if (subjectiveMetrics) {
+                const [SubjectiveMetrics, studentLetter, professorLetter] =
+                    subjectiveMetrics;
                 professors[i].subjectiveMetrics = SubjectiveMetrics;
-                professors[i].aIPromptAnswers!.letterToStudent = studentLetter;
-                professors[i].aIPromptAnswers!.letterToProfessor = professorLetter;
+
+                if (professors[i].aIPromptAnswers === undefined) {
+                    professors[i].aIPromptAnswers = new AIPromptAnswers({
+                        letterToProfessor: professorLetter,
+                        letterToStudent: studentLetter,
+                    });
+                } else {
+                    professors[i].aIPromptAnswers = new AIPromptAnswers({
+                        letterToProfessor: professorLetter,
+                        letterToStudent: studentLetter,
+                        funFacts: professors[i].aIPromptAnswers?.funFacts,
+                    });
+                }
 
                 innerBar.increment();
             }
-            
         } catch (err) {
             // console.log(err)
             // console.log(`No RMP page found for ${professors[i].basicInfo?.name.toString()}`)
