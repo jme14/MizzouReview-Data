@@ -9,8 +9,8 @@ import {
 } from 'mizzoureview-reading/models/professor';
 
 import { Name } from 'mizzoureview-reading/models/name';
-import { generateStudentLetter } from 'src/helpers/gemini.js';
-import { generateProfessorLetter } from 'src/helpers/gemini.js';
+import { generateStudentLetter } from '../helpers/gemini.js';
+import { generateProfessorLetter } from '../helpers/gemini.js';
 
 import { config } from 'dotenv';
 config();
