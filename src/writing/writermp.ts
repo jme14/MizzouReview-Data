@@ -199,7 +199,11 @@ export async function writeRMP(options?: WriteRMPOptions) {
         } finally {
             outerBar.update(i + 1);
         }
-        await writeProfessors(db, professorSubarrays[i]);
+        const writeResult = await writeProfessors(db, professorSubarrays[i]);
+        if (!writeResult.success) {
+            console.log(writeResult.message);
+            console.log(writeResult.data);
+        }
     }
     outerBar.stop();
     return true;
