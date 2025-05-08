@@ -197,7 +197,7 @@ export async function navigateToFirstProfPage(
 
     const initialURL = page.url();
     for (let i = 0; i < allNameElements.length; i++) {
-        await allNameElements.at(i)?.click();
+        await allNameElements.at(i)?.click({ timeout: 15000 });
         await page.waitForLoadState('load');
         const finalURL = page.url();
         if (initialURL != finalURL) {
@@ -553,12 +553,14 @@ export async function setProfessorSubjectiveMetricsLimited(
                         funFacts: professors[i].aIPromptAnswers?.funFacts,
                     });
                 }
-
-                innerBar.increment();
             }
-        } catch (err) {
-            // console.log(err)
-            // console.log(`No RMP page found for ${professors[i].basicInfo?.name.toString()}`)
+        } catch (err: any) {
+            if (err.name !== 'TimeoutError') {
+                console.log('WARNING: AN UNKNOWN ERROR TOOK PLACE');
+                console.log(err);
+            }
+        } finally {
+            innerBar.increment();
         }
     }
     return true;
