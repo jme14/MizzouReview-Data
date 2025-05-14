@@ -9,7 +9,7 @@ import {
 
 import { writeRMP } from '../src/writing/writermp';
 
-describe('fast write modules', () => {
+describe.skip('fast write modules', () => {
     let mucatalogProfessorArray: Professor[];
     let mucoursesProfessorArray: Professor[];
 
@@ -37,7 +37,7 @@ describe('fast write modules', () => {
     });
 });
 
-describe.skip('slow write modules', () => {
+describe('slow write modules', () => {
     test('writeRMP', { timeout: 6_000_0000 }, async () => {
         await writeRMP();
     });

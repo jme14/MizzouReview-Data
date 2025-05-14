@@ -545,6 +545,7 @@ export async function setProfessorSubjectiveMetricsLimited(
                     professors[i].aIPromptAnswers = new AIPromptAnswers({
                         letterToProfessor: professorLetter,
                         letterToStudent: studentLetter,
+                        funFacts: undefined,
                     });
                 } else {
                     professors[i].aIPromptAnswers = new AIPromptAnswers({
@@ -559,6 +560,7 @@ export async function setProfessorSubjectiveMetricsLimited(
                 err.message ===
                 'Fun facts must be an array of length 5 for each fun fact'
             ) {
+                console.log(err);
                 console.log('Invalid professor object found:');
                 console.log(professors[i]);
             } else if (err.name !== 'TimeoutError') {
